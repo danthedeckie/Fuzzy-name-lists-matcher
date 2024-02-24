@@ -1,13 +1,20 @@
 function makeInitials(value) {
   //"Hello World" -> "H W"
-  return value
-    .split(" ")
-    .map((word) => word[0])
-    .join(" ");
+  return value.replace(/(\w)([^\s]*)/g, "$1").replace(/\s+/g, " ").toLowerCase();
+}
+
+function makeFirstInitials(value) {
+  return value.replace(/(\w)\w+\s+/g, "$1 ").replace(/\s+/g, " ")
 }
 
 export function makeVariations(value) {
-  return [value, value.toLowerCase(), value.toUpperCase(), makeInitials(value)];
+  return [
+    value,
+    value.toLowerCase(),
+    value.toUpperCase(),
+    makeInitials(value),
+    makeFirstInitials(value),
+  ];
 }
 
 export function getScore(one, normalizedTwo) {

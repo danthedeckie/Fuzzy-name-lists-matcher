@@ -1,31 +1,39 @@
-// import { expect } from "@jest/globals";
+import { findMatches } from "./lib";
 
-import { makeVariations } from "./lib";
-
-test("exact", () => {
-  expect(makeVariations("Hello World")).toContain("Hello World");
+test("exact match", () => {
+  expect(findMatches(["Hello World"], ["Hello World"])).toContainEqual([
+    "Hello World",
+    1000,
+  ]);
 });
 
-test("lowercase", () => {
-  expect(makeVariations("Hello World")).toContain("hello world");
+test("first initial match", () => {
+  const phrase = "Hello World";
+  const otherListPhrases = ["H World"];
+  const expectedScore = 425;
+  expect(findMatches([phrase], otherListPhrases)).toContainEqual([
+    phrase,
+    expectedScore,
+  ]);
 });
 
-// TODO - drop uppercase - normalise everything to lower?
-test("uppercase", () => {
-  expect(makeVariations("Hello World")).toContain("HELLO WORLD");
+
+test("first initial with dot match", () => {
+  const phrase = "Hello World";
+  const otherListPhrases = ["H. World"];
+  const expectedScore = 425;
+  expect(findMatches([phrase], otherListPhrases)).toContainEqual([
+    phrase,
+    expectedScore,
+  ]);
 });
 
-test("initials", () => {
-  expect(makeVariations("Hello World")).toContain("h w");
-  expect(makeVariations("Alfred Bernard Charles")).toContain("a b c");
-  expect(makeVariations("Alfred B Charles")).toContain("a b c");
-  expect(makeVariations("A B Charles")).toContain("a b c");
+test("no match", () => {
+  const phrase = "Hello World";
+  const otherListPhrases = ["Tomato Sauce"];
+  const expectedScore = 0;
+  expect(findMatches([phrase], otherListPhrases)).toContainEqual([
+    phrase,
+    expectedScore,
+  ]);
 });
-
-test("initials", () => {
-  expect(makeVariations("Hello World")).toContain("H World");
-  expect(makeVariations("Alfred Bernard Charles")).toContain("A B Charles");
-  expect(makeVariations("Alfred  B Charles")).toContain("A B Charles");
-  expect(makeVariations("Alfred B   Charles")).toContain("A B Charles");
-});
-

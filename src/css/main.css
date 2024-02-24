@@ -1,0 +1,17 @@
+* {
+  font-family: Roboto, sans-serif;
+}
+body {
+    margin: 1rem;
+}
+.certain {
+  background-color: #aaffaa;
+  font-weight: bold;
+}
+.possible {
+  background-color: #ffffaa;
+}
+.nothing {
+  color: #aaaaaa;
+  font-style: italic;
+}

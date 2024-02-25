@@ -62,14 +62,25 @@ describe("makeVariations", () => {
     expect(variations).toContainEqual(["h", MATCHVAL.ONE_STEM]);
     expect(variations).toContainEqual(["c_sm_s", MATCHVAL.ONE_STEM]);
   });
-  it('copes with multiple bracket versions', () => {
-    const variations = makeVariations('(Julia Elizabeth) WALPORT (Dr Julia Neild)');
-    const words = variations.map(([a,b]) => a);
-    expect(words).not.toContain('');
-    expect(words).toContain('julia');
-    expect(words).toContain('elizabeth');
-    expect(words).toContain('walport');
-    expect(words).toContain('neild');
+  it("copes with multiple bracket versions", () => {
+    const variations = makeVariations(
+      "(Julia Elizabeth) WALPORT (Dr Julia Neild)"
+    );
+    const words = variations.map(([a, b]) => a);
+    expect(words).not.toContain("");
+    expect(words).toContain("julia");
+    expect(words).toContain("elizabeth");
+    expect(words).toContain("walport");
+    expect(words).toContain("neild");
+  });
+  it("makes a non-extra letters version", () => {
+    const variations = makeVariations("hello g world");
+    expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
+  });
+  it("comapre", () => {
+    const variations = makeVariations("David Williams");
+    const variations2 = makeVariations("David Walliams");
+      expect(variations).toEqual(variations2);
   });
 });
 
@@ -139,6 +150,22 @@ describe("getScore", () => {
     const matchesMap = makeMatchesMap(["Hello World"]);
     expect(getScore("Banana", matchesMap)).toEqual([0, []]);
   });
+
+  // it("surname only match is NOT 100", () => {
+  //   const matchesMap = makeMatchesMap(["(Annie George) TEST"]);
+  //   expect(getScore("Mike Test", matchesMap)).toEqual([
+  //     20,
+  //     ["(Annie George) TEST"],
+  //   ]);
+  // });
+
+  it("get's a good match score for missing middle name only from bracketed", () => {
+    const matchesMap = makeMatchesMap(["Hello LARGE-WORLD (Hello World)"]);
+    expect(getScore("Hello M World", matchesMap)).toEqual([
+      100,
+      ["Hello LARGE-WORLD (Hello World)"],
+    ]);
+  });
 });
 
 describe("findMatches", () => {
@@ -179,7 +206,6 @@ describe("findMatches", () => {
       expectedScore,
     ]);
   });
-    
 });
 
 // test('foo', () => {

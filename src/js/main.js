@@ -9,7 +9,7 @@ function scoreClass(value) {
   if (value > 99) {
     return "certain";
   }
-  if (value > 20) {
+  if (value > 10) {
     return "possible";
   }
   if (value < 1.1) {
@@ -36,7 +36,7 @@ buttonEl.addEventListener("click", () => {
         `<tr class="${scoreClass(score)}">
         <td>${name}</td>
         <td><div class="matchoptions">${possibleMatches}</div></td>
-        <td class="score">${score}</td>
+        <td class="score">${score.toFixed(2)}</td>
       </tr>`
     );
 

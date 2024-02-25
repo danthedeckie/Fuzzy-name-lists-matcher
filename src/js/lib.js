@@ -1,9 +1,10 @@
 export const MATCHVAL = {
   TOTAL: 1000,
-  INITIALS_AND_FINAL: 8,
+  TWO_NAMES_MATCH: 300,
+  INITIALS_AND_FINAL: 50,
   INITIALS: 2,
   ONE_NAME: 4,
-  ONE_STEM: 3,
+  ONE_STEM: 10,
 };
 
 export function normalise(value) {
@@ -46,14 +47,19 @@ function makeAlmostSoundex(value) {
     .replace("ll", "l") // allison/alison
     .replace("ff", "f") // jeff/jef
     .replace("bb", "b") // Bobby / bob
-    .replace("nn", "n") // Bobby / bob
+    .replace("nn", "n") // Dennis / Denis
+    .replace("tt", "t") // Matt / Mat
+    .replace("ss", "s") // Katniss / katniss
     .replace("ph", "f") // philipe/filipe
     .replace("ge", "je") // jeff/geoff
     .replace("g", "j") // Gill/jill
+    .replace("k", "c") // Kate/cate
     .replace("z", "s") // Elizabeth/Elisabeth
     .replace("tch", "ch") // watch / wach
     .replace("th", "t") // wath / watt
     .replace(/[rw]/, "b") // bill/will, rob/bob
+    .replace('oh', 'o') // john/jon
+    .replace("mac", "mc") // Macfarlane/mcfarlane
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
     .replace("ian", "") // Gillian / Gill
@@ -82,16 +88,41 @@ export function makeVariations(value) {
   );
   const splitNames = nameOutsideBrackets.split(" ").filter((i) => i.length);
 
+
   let variations = [
+    [nameOutsideBrackets, MATCHVAL.TOTAL],
     [nameOutsideBrackets, MATCHVAL.TOTAL],
     ...splitNames.map((w) => [makeAlmostSoundex(w), MATCHVAL.ONE_STEM]),
   ];
 
+  for (const name of splitNames) {
+    for (const name2 of splitNames) {
+      if (name !== name2 && `${name} ${name2}` !== nameOutsideBrackets) {
+        variations.push([`${name} ${name2}`, MATCHVAL.TWO_NAMES_MATCH]);
+        variations.push([
+          `${makeAlmostSoundex(name)} ${makeAlmostSoundex(name2)}`,
+          MATCHVAL.TWO_NAMES_MATCH,
+        ]);
+      }
+    }
+  }
+
+  let nameWithoutIndividualLetters = nameOutsideBrackets.replace(/ . /g, " ");
+  if (nameWithoutIndividualLetters !== nameOutsideBrackets) {
+    variations.push([nameWithoutIndividualLetters, MATCHVAL.TOTAL]);
+  }
+
   if (splitNames.length > 1) {
+
+    const mostCommonCombined = `${splitNames[0]} ${splitNames[1]}`;
+      if (mostCommonCombined !== nameOutsideBrackets) {
+        variations.push([mostCommonCombined, MATCHVAL.TWO_NAMES_MATCH * 2]);
+      }
+
     variations = [
       ...variations,
 
-    ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
+      ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
       [makeFirstInitials(nameOutsideBrackets), MATCHVAL.INITIALS_AND_FINAL],
       [makeInitials(nameOutsideBrackets), MATCHVAL.INITIALS],
     ];
@@ -101,16 +132,23 @@ export function makeVariations(value) {
 
   for (const [_, bracketedName] of bracketedNames) {
     if (nameOutsideBrackets !== bracketedName) {
+      nameWithoutIndividualLetters = bracketedName.replace(/ . /g, " ");
+      if (nameWithoutIndividualLetters !== bracketedName) {
+        variations.push([nameWithoutIndividualLetters, MATCHVAL.TOTAL]);
+      }
+
       variations = [
         ...variations,
         [bracketedName, MATCHVAL.TOTAL],
         [makeFirstInitials(bracketedName), MATCHVAL.INITIALS_AND_FINAL],
         [makeInitials(bracketedName), MATCHVAL.INITIALS],
+
         ...bracketedName
           .split(" ")
           .map((i) => i.trim())
           .filter((i) => i.length)
           .map((w) => [w, MATCHVAL.ONE_NAME]),
+
         ...bracketedName
           .split(" ")
           .map((i) => i.trim())
@@ -153,13 +191,16 @@ export function getScore(one, matchesMap) {
       for (const [phrase, score] of match) {
         foundNames.set(
           phrase,
-          ((foundNames.get(phrase) || 0) + score) * variationScore
+          (foundNames.get(phrase) || 0) + score * variationScore
         );
       }
     }
   }
 
-  const totalScore = Math.min(Math.max(...foundNames.values(), 0) / 100, 100);
+  let totalScore = Math.pow(
+    [...foundNames.values()].reduce((a, b) => a + b, 0) / 150,
+     0.5 
+  );
   const highestScore = Math.max(...foundNames.values());
 
   const cutoff = Math.max(highestScore / 10, 0.1);
@@ -169,6 +210,12 @@ export function getScore(one, matchesMap) {
       .sort((a, b) => b[1] - a[1])
       .map((i) => i[0]),
   ];
+
+  if (totalScore > 80) {
+      if (normalise(one) === normalise(sortedNames[0])) {
+          totalScore = 100;
+      }
+  }
 
   return [totalScore, sortedNames];
 }

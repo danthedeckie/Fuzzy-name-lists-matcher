@@ -1,3 +1,11 @@
+export const MATCHVAL = {
+  TOTAL: 1000,
+  INITIALS_AND_FINAL: 8,
+  INITIALS: 2,
+  ONE_NAME: 4,
+  ONE_STEM: 3,
+};
+
 export function normalise(value) {
   /* Given a name, return a version with:
    * - spaces trimmed & combined
@@ -10,7 +18,11 @@ export function normalise(value) {
     .replace(/[\.'\ʼ]/g, "")
     .replace(/[\s\-]+/, " ")
     .toLowerCase()
-    .replace("dr ", "");
+    .replace("^dr ", "")
+    .replace("^mr ", "")
+    .replace("^mrs ", "")
+    .replace("^ms ", "")
+    .replace("^m ", "");
 }
 
 /*
@@ -39,8 +51,8 @@ function makeAlmostSoundex(value) {
     .replace("ge", "je") // jeff/geoff
     .replace("g", "j") // Gill/jill
     .replace("z", "s") // Elizabeth/Elisabeth
-    .replace('tch', 'ch') // watch / wach
-    .replace('th', 't') // wath / watt
+    .replace("tch", "ch") // watch / wach
+    .replace("th", "t") // wath / watt
     .replace(/[rw]/, "b") // bill/will, rob/bob
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
@@ -65,28 +77,45 @@ export function makeVariations(value) {
    * of it we could expect, with a score for how likely a match is to be a real match
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
-  const nameOutsideBrackets = normalise(value.replace(/\(.*\)/, "").trim());
-  const bracketedName = normalise(value.replace(/.*\((.*)\).*/, "$1").trim());
+  const nameOutsideBrackets = normalise(value.replace(/\([^\)]*\)/g, "").trim());
   let variations = [
-    [nameOutsideBrackets, 100],
-    [makeFirstInitials(nameOutsideBrackets), 10],
-    [makeInitials(nameOutsideBrackets), 2],
-    ...nameOutsideBrackets.split(" ").map((w) => [w, 4]),
-    ...nameOutsideBrackets.split(" ").map((w) => [makeAlmostSoundex(w), 2]),
+    [nameOutsideBrackets, MATCHVAL.TOTAL],
+    [makeFirstInitials(nameOutsideBrackets), MATCHVAL.INITIALS_AND_FINAL],
+    [makeInitials(nameOutsideBrackets), MATCHVAL.INITIALS],
+    ...nameOutsideBrackets
+      .split(" ")
+      .filter((i) => i.length)
+      .map((w) => [w, MATCHVAL.ONE_NAME]),
+    ...nameOutsideBrackets
+      .split(" ")
+      .filter((i) => i.length)
+      .map((w) => [makeAlmostSoundex(w), MATCHVAL.ONE_STEM]),
   ];
 
-  if (nameOutsideBrackets !== bracketedName) {
-    variations = [
-      ...variations,
-      [bracketedName, 100],
-      [makeFirstInitials(bracketedName), 10],
-      [makeInitials(bracketedName), 2],
-      ...bracketedName.split(" ").map((w) => [w, 4]),
-      ...bracketedName.split(" ").map((w) => [makeAlmostSoundex(w), 2]),
-    ];
+  const bracketedNames = normalise(value).matchAll(/\(([^\)]*)\)/g);
+
+  for (const [_, bracketedName] of bracketedNames) {
+    if (nameOutsideBrackets !== bracketedName) {
+      variations = [
+        ...variations,
+        [bracketedName, MATCHVAL.TOTAL],
+        [makeFirstInitials(bracketedName), MATCHVAL.INITIALS_AND_FINAL],
+        [makeInitials(bracketedName), MATCHVAL.INITIALS],
+        ...bracketedName
+          .split(" ")
+          .map((i) => i.trim())
+          .filter((i) => i.length)
+          .map((w) => [w, MATCHVAL.ONE_NAME]),
+        ...bracketedName
+          .split(" ")
+          .map((i) => i.trim())
+          .filter((i) => i.length)
+          .map((w) => [makeAlmostSoundex(w), MATCHVAL.ONE_STEM]),
+      ];
+    }
   }
 
-  return variations;
+  return variations.filter(([word, score]) => word.length);
 }
 
 export function makeMatchesMap(phrasesList) {
@@ -97,7 +126,7 @@ export function makeMatchesMap(phrasesList) {
       const phraseScores = matchesMap.get(variant) || new Map();
       const thisPhraseScore = phraseScores.get(originalPhrase) || 0;
 
-      phraseScores.set(originalPhrase, Math.min(thisPhraseScore + score, 100));
+      phraseScores.set(originalPhrase, Math.min(thisPhraseScore + score, 1000));
 
       matchesMap.set(variant, phraseScores);
     }
@@ -125,10 +154,10 @@ export function getScore(one, matchesMap) {
     }
   }
 
-  const totalScore = Math.min(Math.max(...foundNames.values()) / 100, 100);
+  const totalScore = Math.min(Math.max(...foundNames.values(), 0) / 100, 100);
   const highestScore = Math.max(...foundNames.values());
 
-  const cutoff = Math.max((highestScore / 10), 0.1);
+  const cutoff = Math.max(highestScore / 10, 0.1);
   const sortedNames = [
     ...[...foundNames.entries()]
       .filter((a) => a[1] > cutoff)

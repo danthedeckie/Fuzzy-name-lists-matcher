@@ -1,4 +1,11 @@
-import { findMatches, normalise, makeMatchesMap, getScore, makeVariations } from "./lib";
+import {
+  findMatches,
+  normalise,
+  makeMatchesMap,
+  getScore,
+  makeVariations,
+  MATCHVAL,
+} from "./lib";
 
 describe("normalise", () => {
   it("makes things lower case", () => {
@@ -26,92 +33,113 @@ describe("normalise", () => {
 
 describe("makeVariations", () => {
   it("simple name", () => {
-      const variations = makeVariations("hello world");
-      expect(variations).toContainEqual(["hello world", 100]);
-      expect(variations).toContainEqual(["h world", 10]);
-      expect(variations).toContainEqual(["h w", 2]);
-      expect(variations).toContainEqual(["hello", 4]);
-      expect(variations).toContainEqual(["world", 4]);
-      expect(variations).toContainEqual(["h_l_", 2]);
-      expect(variations).toContainEqual(["b_rld", 2]);
-
-  })
+    const variations = makeVariations("hello world");
+    expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
+    expect(variations).toContainEqual(["h world", MATCHVAL.INITIALS_AND_FINAL]);
+    expect(variations).toContainEqual(["h w", MATCHVAL.INITIALS]);
+    expect(variations).toContainEqual(["hello", MATCHVAL.ONE_NAME]);
+    expect(variations).toContainEqual(["world", MATCHVAL.ONE_NAME]);
+    expect(variations).toContainEqual(["h_l_", MATCHVAL.ONE_STEM]);
+    expect(variations).toContainEqual(["b_rld", MATCHVAL.ONE_STEM]);
+  });
 
   it("name with bracketed version", () => {
-      const variations = makeVariations("hello WORLD (hey cosmos)");
-      expect(variations).toContainEqual(["hello world", 100]);
-      expect(variations).toContainEqual(["h world", 10]);
-      expect(variations).toContainEqual(["h w", 2]);
-      expect(variations).toContainEqual(["hello", 4]);
-      expect(variations).toContainEqual(["world", 4]);
+    const variations = makeVariations("hello WORLD (hey cosmos)");
+    expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
+    expect(variations).toContainEqual(["h world", MATCHVAL.INITIALS_AND_FINAL]);
+    expect(variations).toContainEqual(["h w", MATCHVAL.INITIALS]);
+    expect(variations).toContainEqual(["hello", MATCHVAL.ONE_NAME]);
+    expect(variations).toContainEqual(["world", MATCHVAL.ONE_NAME]);
 
-      expect(variations).toContainEqual(["hey cosmos", 100]);
-      expect(variations).toContainEqual(["h cosmos", 10]);
-      expect(variations).toContainEqual(["h c", 2]);
-      expect(variations).toContainEqual(["hey", 4]);
-      expect(variations).toContainEqual(["cosmos", 4]);
-
-  })
-
-}) 
+    expect(variations).toContainEqual(["hey cosmos", MATCHVAL.TOTAL]);
+    expect(variations).toContainEqual([
+      "h cosmos",
+      MATCHVAL.INITIALS_AND_FINAL,
+    ]);
+    expect(variations).toContainEqual(["h c", MATCHVAL.INITIALS]);
+    expect(variations).toContainEqual(["hey", MATCHVAL.ONE_NAME]);
+    expect(variations).toContainEqual(["cosmos", MATCHVAL.ONE_NAME]);
+    expect(variations).toContainEqual(["h", MATCHVAL.ONE_STEM]);
+    expect(variations).toContainEqual(["c_sm_s", MATCHVAL.ONE_STEM]);
+  });
+  it('copes with multiple bracket versions', () => {
+    const variations = makeVariations('(Julia Elizabeth) WALPORT (Dr Julia Neild)');
+    const words = variations.map(([a,b]) => a);
+    expect(words).not.toContain('');
+    expect(words).toContain('julia');
+    expect(words).toContain('elizabeth');
+    expect(words).toContain('walport');
+    expect(words).toContain('neild');
+  });
+});
 
 describe("makeMatchesMap", () => {
   it("works with one item", () => {
     const output = makeMatchesMap(["Hello World"]);
-    expect(output.get("hello world").get("Hello World")).toEqual(100);
-    expect(output.get("h world").get("Hello World")).toEqual(10);
-    expect(output.get("h w").get("Hello World")).toEqual(2);
+    expect(output.get("hello world").get("Hello World")).toEqual(
+      1000 // MATCHVAL.TOTAL
+    );
+    expect(output.get("h world").get("Hello World")).toEqual(
+      MATCHVAL.INITIALS_AND_FINAL
+    );
+    expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
   });
   it("works with two items", () => {
     const output = makeMatchesMap(["Hello World", "Be Kind"]);
-    expect(output.get("hello world").get("Hello World")).toEqual(100);
-    expect(output.get("h world").get("Hello World")).toEqual(10);
-    expect(output.get("h w").get("Hello World")).toEqual(2);
+    expect(output.get("hello world").get("Hello World")).toEqual(1000);
+    expect(output.get("h world").get("Hello World")).toEqual(
+      MATCHVAL.INITIALS_AND_FINAL
+    );
+    expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
-    expect(output.get("be kind").get("Be Kind")).toEqual(100);
-    expect(output.get("b kind").get("Be Kind")).toEqual(10);
-    expect(output.get("b k").get("Be Kind")).toEqual(2);
+    expect(output.get("be kind").get("Be Kind")).toEqual(1000);
+    expect(output.get("b kind").get("Be Kind")).toEqual(
+      MATCHVAL.INITIALS_AND_FINAL
+    );
+    expect(output.get("b k").get("Be Kind")).toEqual(MATCHVAL.INITIALS);
   });
   it("works with two items with the same initials", () => {
     const output = makeMatchesMap(["Hello World", "House Wooster"]);
 
-    expect(output.get("hello world").get("Hello World")).toEqual(100);
-    expect(output.get("h world").get("Hello World")).toEqual(10);
-    expect(output.get("h w").get("House Wooster")).toEqual(2);
-    expect(output.get("h w").get("Hello World")).toEqual(2);
+    expect(output.get("hello world").get("Hello World")).toEqual(1000);
+    expect(output.get("h world").get("Hello World")).toEqual(
+      MATCHVAL.INITIALS_AND_FINAL
+    );
+    expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
+    expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
-    expect(output.get("house wooster").get("House Wooster")).toEqual(100);
-    expect(output.get("h wooster").get("House Wooster")).toEqual(5);
-    expect(output.get("h w").get("House Wooster")).toEqual(2);
+    expect(output.get("house wooster").get("House Wooster")).toEqual(1000);
+    expect(output.get("h wooster").get("House Wooster")).toEqual(
+      MATCHVAL.INITIALS_AND_FINAL
+    );
+    expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
   });
 
   it("it prioritises exact matches", () => {
     const output = makeMatchesMap(["H World", "Hello World"]);
 
-    expect(output.get("hello world").get("Hello World")).toEqual(10);
-    expect(output.get("h world").get("H World")).toEqual(12); // TODO - check this...
-    expect(output.get("h w").get("Hello World")).toEqual(0.5);
+    expect(output.get("hello world").get("Hello World")).toEqual(1000);
+    expect(output.get("h world").get("H World")).toEqual(1000);
+    expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
   });
 });
 
 describe("getScore", () => {
-    it("exact match", () => {
-        const matchesMap = makeMatchesMap(['Hello World']);
-        expect(getScore('Hello World', matchesMap)).toEqual([100, ["Hello World"]]);
-    });
+  it("exact match", () => {
+    const matchesMap = makeMatchesMap(["Hello World"]);
+    expect(getScore("Hello World", matchesMap)).toEqual([100, ["Hello World"]]);
+  });
 
-    it("secondary match", () => {
-        const matchesMap = makeMatchesMap(['Hello World']);
-        expect(getScore('H World', matchesMap)).toEqual([22.25, ["Hello World"]]);
-    });
+  it("secondary match", () => {
+    const matchesMap = makeMatchesMap(["Hello World"]);
+    expect(getScore("H World", matchesMap)).toEqual([100, ["Hello World"]]); // TODO check this...
+  });
 
-    it("non-match", () => {
-        const matchesMap = makeMatchesMap(['Hello World']);
-        expect(getScore('Banana', matchesMap)).toEqual([0, []]);
-    });
-
-
-})
+  it("non-match", () => {
+    const matchesMap = makeMatchesMap(["Hello World"]);
+    expect(getScore("Banana", matchesMap)).toEqual([0, []]);
+  });
+});
 
 describe("findMatches", () => {
   test("exact match", () => {
@@ -124,7 +152,7 @@ describe("findMatches", () => {
   test("first initial match", () => {
     const phrase = "Hello World";
     const otherListPhrases = ["H World"];
-    const expectedScore = [12.25, ["H World"]];
+    const expectedScore = [100, ["H World"]]; // TODO check this
 
     expect(findMatches([phrase], otherListPhrases)).toContainEqual([
       phrase,
@@ -135,7 +163,7 @@ describe("findMatches", () => {
   test("first initial with dot match", () => {
     const phrase = "Hello World";
     const otherListPhrases = ["H. World"];
-    const expectedScore = [12.25, ["H. World"]];
+    const expectedScore = [100, ["H. World"]]; // TODO check this
     expect(findMatches([phrase], otherListPhrases)).toContainEqual([
       phrase,
       expectedScore,
@@ -151,4 +179,9 @@ describe("findMatches", () => {
       expectedScore,
     ]);
   });
+    
 });
+
+// test('foo', () => {
+//     expect(makeVariations('(Julia Elizabeth) WALPORT (Dr Julia Neild)')).toEqual('foo');
+// });

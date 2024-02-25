@@ -2,7 +2,7 @@
   font-family: Roboto, sans-serif;
 }
 body {
-    margin: 1rem;
+  margin: 1rem;
 }
 .certain {
   background-color: #aaffaa;
@@ -15,3 +15,32 @@ body {
   color: #aaaaaa;
   font-style: italic;
 }
+
+td {
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.matchoptions {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.matchoptions:hover {
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+}
+
+/* .matchoptions{ */
+/*     white-space: nowrap; */
+/*     overflow: hidden; */
+/*     text-overflow: ellipsis; */
+/* } */
+
+/* .matchoptions:hover { */
+/*     white-space: wrap; */
+/*     overflow: none; */
+/*     text-overflow: none; */
+/* } */

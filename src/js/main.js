@@ -6,12 +6,15 @@ const listTwoEl = document.getElementById("listTwo");
 const outputEl = document.getElementById("matchesOutput");
 
 function scoreClass(value) {
-    if (value > 999) {
-        return 'certain';
-    }
-    if (value > 400) {
-        return 'possible';
-    }
+  if (value > 99) {
+    return "certain";
+  }
+  if (value > 20) {
+    return "possible";
+  }
+  if (value < 1) {
+    return "nothing";
+  }
 }
 
 buttonEl.addEventListener("click", () => {
@@ -20,9 +23,12 @@ buttonEl.addEventListener("click", () => {
   const matches = findMatches(listOne, listTwo);
 
   const sorted = matches.sort(
-    ([name, score], [name2, score2]) => score2 - score
+    ([name, [score, possibleMatches]], [name2, [score2, possibleMatches2]]) => score2 - score
   );
-  const output = sorted.map(([name, score]) => `<li class="${scoreClass(score)}">${name} (${score})</li>`);
+  const output = sorted.map(
+    ([name, [score, possibleMatches]]) =>
+      `<tr class="${scoreClass(score)}"><td>${name}</td><td>${score}</td><td><div class="matchoptions">${possibleMatches}</div></td></tr>`
+  );
 
   matchesOutput.innerHTML = [...output].join("\n");
 });

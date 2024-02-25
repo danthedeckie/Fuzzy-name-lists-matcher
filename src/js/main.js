@@ -12,23 +12,37 @@ function scoreClass(value) {
   if (value > 20) {
     return "possible";
   }
-  if (value < 1) {
+  if (value < 1.1) {
     return "nothing";
   }
 }
 
 buttonEl.addEventListener("click", () => {
-  const listOne = listOneEl.value.split(/\r?\n/);
-  const listTwo = listTwoEl.value.split(/\r?\n/);
-  const matches = findMatches(listOne, listTwo);
+  buttonEl.textContent = "Searching...";
+    //buttonEl.disabled = true;
+  buttonEl.style.cursor = 'wait';
 
-  const sorted = matches.sort(
-    ([name, [score, possibleMatches]], [name2, [score2, possibleMatches2]]) => score2 - score
-  );
-  const output = sorted.map(
-    ([name, [score, possibleMatches]]) =>
-      `<tr class="${scoreClass(score)}"><td>${name}</td><td>${score}</td><td><div class="matchoptions">${possibleMatches}</div></td></tr>`
-  );
+  window.setTimeout(() => {
+    const listOne = listOneEl.value.split(/\r?\n/);
+    const listTwo = listTwoEl.value.split(/\r?\n/);
+    const matches = findMatches(listOne, listTwo);
 
-  matchesOutput.innerHTML = [...output].join("\n");
+    const sorted = matches.filter(([name, [score, possibleMatches]]) => score > 1).sort(
+      ([name, [score, possibleMatches]], [name2, [score2, possibleMatches2]]) =>
+        score2 - score
+    );
+    const output = sorted.map(
+      ([name, [score, possibleMatches]]) =>
+        `<tr class="${scoreClass(score)}">
+        <td>${name}</td>
+        <td><div class="matchoptions">${possibleMatches}</div></td>
+        <td class="score">${score}</td>
+      </tr>`
+    );
+
+    matchesOutput.innerHTML = [...output].join("\n");
+
+    buttonEl.textContent = "Search";
+    buttonEl.style.cursor = 'auto';
+  }, 1);
 });

@@ -4,21 +4,114 @@
 body {
   margin: 1rem;
 }
-.certain {
-  background-color: #aaffaa;
-  font-weight: bold;
+
+.intro {
+    display: flex;
+    justify-content: center;
 }
-.possible {
-  background-color: #ffffaa;
+
+h1 {
+  text-align: center;
 }
-.nothing {
-  color: #aaaaaa;
-  font-style: italic;
+
+.entry {
+  display: flex;
+  justify-content: center;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    align-items: center;
+  }
+  textarea {
+    border-radius: 0.3rem;
+    padding: 0.3rem;
+    min-height: 20rem;
+    width: 30vw;
+  }
+}
+.buttons {
+  padding: 0.4rem;
+  text-align: center;
+}
+
+button {
+  background-color: #9394F1;
+  border: 1px solid #9394F1;
+  padding: 0.7rem 1rem 0.5rem;
+  border-radius: 2rem;
+  font-size: 1.2rem;
+  text-shadow: 0 0.1rem 0.5rem rgba(0,0,0,0.5);
+  color: #ffffff;
+  font-weight: thin;
+  box-shadow: 0.0rem 0.4rem 0.5rem rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+  transition: background-color 0.2s, box-shadow 0.1s;
+  &:hover {
+    background-color: #A4A6F4;
+    /* border: 1px solid #C9CAF8; */
+      box-shadow: 0.0rem 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
+  }
+  &:active {
+    background-color: #5D5FEA;
+    border: 1px solid #5D5FEA;
+  }
+}
+
+table {
+  border: 0;
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 0.3rem;
+  box-shadow: 0.2rem 0.2rem 0.5rem rgba(0, 0, 0, 0.5);
+}
+
+thead td {
+  padding: 0.5rem;
+}
+
+thead {
+  border-bottom: 2px solid #888888;
 }
 
 td {
   overflow: hidden;
   vertical-align: top;
+
+  margin: 0;
+  padding: 0.3rem;
+&:first-child{
+    min-width: 10rem;
+}
+}
+
+tr:nth-child(even) {
+  background-color: #eeeeee;
+}
+
+.certain {
+  background-color: #25f8c0;
+  font-weight: bold;
+}
+tr:nth-child(even).certain {
+  background-color: #07daa1;
+}
+
+.possible {
+  background-color: #ffe7ad;
+}
+tr:nth-child(even).possible {
+  background-color: #ffd470;
+}
+
+.nothing {
+  color: #aaaaaa;
+  font-style: italic;
+}
+
+tr:nth-child(even).nothing {
+  background-color: #f8f8f8;
 }
 
 .matchoptions {
@@ -32,15 +125,3 @@ td {
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
 }
-
-/* .matchoptions{ */
-/*     white-space: nowrap; */
-/*     overflow: hidden; */
-/*     text-overflow: ellipsis; */
-/* } */
-
-/* .matchoptions:hover { */
-/*     white-space: wrap; */
-/*     overflow: none; */
-/*     text-overflow: none; */
-/* } */

@@ -211,9 +211,11 @@ export function getScore(one, matchesMap) {
       .map((i) => i[0]),
   ];
 
-  if (totalScore > 80) {
+  if (totalScore > 99) {
       if (normalise(one) === normalise(sortedNames[0])) {
           totalScore = 100;
+      } else {
+          totalScore = 99;
       }
   }
 

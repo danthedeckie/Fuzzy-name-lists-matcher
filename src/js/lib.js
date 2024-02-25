@@ -77,20 +77,25 @@ export function makeVariations(value) {
    * of it we could expect, with a score for how likely a match is to be a real match
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
-  const nameOutsideBrackets = normalise(value.replace(/\([^\)]*\)/g, "").trim());
+  const nameOutsideBrackets = normalise(
+    value.replace(/\([^\)]*\)/g, "").trim()
+  );
+  const splitNames = nameOutsideBrackets.split(" ").filter((i) => i.length);
+
   let variations = [
     [nameOutsideBrackets, MATCHVAL.TOTAL],
-    [makeFirstInitials(nameOutsideBrackets), MATCHVAL.INITIALS_AND_FINAL],
-    [makeInitials(nameOutsideBrackets), MATCHVAL.INITIALS],
-    ...nameOutsideBrackets
-      .split(" ")
-      .filter((i) => i.length)
-      .map((w) => [w, MATCHVAL.ONE_NAME]),
-    ...nameOutsideBrackets
-      .split(" ")
-      .filter((i) => i.length)
-      .map((w) => [makeAlmostSoundex(w), MATCHVAL.ONE_STEM]),
+    ...splitNames.map((w) => [makeAlmostSoundex(w), MATCHVAL.ONE_STEM]),
   ];
+
+  if (splitNames.length > 1) {
+    variations = [
+      ...variations,
+
+    ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
+      [makeFirstInitials(nameOutsideBrackets), MATCHVAL.INITIALS_AND_FINAL],
+      [makeInitials(nameOutsideBrackets), MATCHVAL.INITIALS],
+    ];
+  }
 
   const bracketedNames = normalise(value).matchAll(/\(([^\)]*)\)/g);
 

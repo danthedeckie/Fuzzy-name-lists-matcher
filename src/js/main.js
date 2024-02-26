@@ -9,7 +9,7 @@ function scoreClass(value) {
   if (value > 99) {
     return "certain";
   }
-  if (value > 10) {
+  if (value > 40) {
     return "possible";
   }
   if (value < 1.1) {

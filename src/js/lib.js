@@ -1,10 +1,11 @@
 export const MATCHVAL = {
   TOTAL: 1000,
+  TOTAL_STEM: 800,
   TWO_NAMES_MATCH: 300,
   INITIALS_AND_FINAL: 50,
   INITIALS: 2,
   ONE_NAME: 4,
-  ONE_STEM: 10,
+  ONE_STEM: 2,
 };
 
 export function normalise(value) {
@@ -19,7 +20,7 @@ export function normalise(value) {
       // remove beginning/ending whitespace:
       .trim()
       .replace(/[\.'\ʼ]/g, "") // O'Leary, etc.
-      .replace(/[\s\-]+/, " ") // Ffink-Nottle
+      .replace(/[\s\-]+/g, " ") // Ffink-Nottle
       .toLowerCase()
       // strip common titles:
       .replace("^dr ", "")
@@ -37,7 +38,7 @@ export function normalise(value) {
  * Various 'variations' functions:
  * */
 
-function makeInitials(value) {
+export function makeInitials(value) {
   //"Hello World" -> "H W"
   return value
     .replace(/(\w)([^\s]*)/g, "$1")
@@ -45,7 +46,7 @@ function makeInitials(value) {
     .toLowerCase();
 }
 
-function makeFirstInitials(value) {
+export function makeFirstInitials(value) {
   return value.replace(/(\w)\w+\s+/g, "$1 ").replace(/\s+/g, " ");
 }
 
@@ -87,25 +88,21 @@ function makeStemmed(value) {
 
 /* And combine them all: */
 
-export function makeVariations(value) {
-  /* Given an original (complex) name, normalise it and return all the variations
-   * of it we could expect, with a score for how likely a match is to be a real match
-   * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
-   * */
-  const nameOutsideBrackets = normalise(
-    value.replace(/\([^\)]*\)/g, "").trim()
-  );
-  const splitNames = nameOutsideBrackets.split(" ").filter((i) => i.length);
+function makeSubVariations(value) {
+  const splitNames = value.split(" ").filter((i) => i.length);
 
+  // First the 'full names' at full value:
   let variations = [
-    [nameOutsideBrackets, MATCHVAL.TOTAL],
-    [nameOutsideBrackets, MATCHVAL.TOTAL],
+    [value, MATCHVAL.TOTAL],
+    [makeStemmed(value), MATCHVAL.TOTAL_STEM],
+    // Plus all the individual names (stemmed) at that value:
     ...splitNames.map((w) => [makeStemmed(w), MATCHVAL.ONE_STEM]),
   ];
 
+  // All combinations of names (& stemmed Names)
   for (const name of splitNames) {
     for (const name2 of splitNames) {
-      if (name !== name2 && `${name} ${name2}` !== nameOutsideBrackets) {
+      if (name !== name2 && `${name} ${name2}` !== value) {
         variations.push([`${name} ${name2}`, MATCHVAL.TWO_NAMES_MATCH]);
         variations.push([
           `${makeStemmed(name)} ${makeStemmed(name2)}`,
@@ -115,14 +112,14 @@ export function makeVariations(value) {
     }
   }
 
-  let nameWithoutIndividualLetters = nameOutsideBrackets.replace(/ . /g, " ");
-  if (nameWithoutIndividualLetters !== nameOutsideBrackets) {
+  let nameWithoutIndividualLetters = value.replace(/ . /g, " ");
+  if (nameWithoutIndividualLetters !== value) {
     variations.push([nameWithoutIndividualLetters, MATCHVAL.TOTAL]);
   }
 
   if (splitNames.length > 1) {
     const mostCommonCombined = `${splitNames[0]} ${splitNames[1]}`;
-    if (mostCommonCombined !== nameOutsideBrackets) {
+    if (mostCommonCombined !== value) {
       variations.push([mostCommonCombined, MATCHVAL.TWO_NAMES_MATCH * 2]);
     }
 
@@ -130,38 +127,39 @@ export function makeVariations(value) {
       ...variations,
 
       ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
-      [makeFirstInitials(nameOutsideBrackets), MATCHVAL.INITIALS_AND_FINAL],
-      [makeInitials(nameOutsideBrackets), MATCHVAL.INITIALS],
+      [makeFirstInitials(value), MATCHVAL.INITIALS_AND_FINAL],
+      // [makeFirstInitials(value).replace(/ . /, ''), MATCHVAL.INITIALS_AND_FINAL],
+      [makeInitials(value), MATCHVAL.INITIALS],
     ];
   }
+  return variations;
+}
+
+export function makeVariations(value) {
+  /* Given an original (complex) name, normalise it and return all the variations
+   * of it we could expect, with a score for how likely a match is to be a real match
+   * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
+   * */
+  const nameOutsideBrackets = normalise(
+    value.replace(/\([^\)]*\)/g, "").trim()
+  );
+  let variations = makeSubVariations(nameOutsideBrackets);
+
+  // // WIP - if only one name outside brackets, use total name not individual name
+  // if (
+  //   nameOutsideBrackets.split(" ").length === 1 &&
+  //   value.indexOf("(") !== -1
+  // ) {
+  //   const bracketsRemovedNames = normalise(value.replace(/[\(\)]/g, ""));
+  //   console.log(bracketsRemovedNames, nameOutsideBrackets);
+  //   variations = [...variations, ...makeSubVariations(bracketsRemovedNames)]
+  // }
 
   const bracketedNames = normalise(value).matchAll(/\(([^\)]*)\)/g);
 
   for (const [_, bracketedName] of bracketedNames) {
     if (nameOutsideBrackets !== bracketedName) {
-      nameWithoutIndividualLetters = bracketedName.replace(/ . /g, " ");
-      if (nameWithoutIndividualLetters !== bracketedName) {
-        variations.push([nameWithoutIndividualLetters, MATCHVAL.TOTAL]);
-      }
-
-      variations = [
-        ...variations,
-        [bracketedName, MATCHVAL.TOTAL],
-        [makeFirstInitials(bracketedName), MATCHVAL.INITIALS_AND_FINAL],
-        [makeInitials(bracketedName), MATCHVAL.INITIALS],
-
-        ...bracketedName
-          .split(" ")
-          .map((i) => i.trim())
-          .filter((i) => i.length)
-          .map((w) => [w, MATCHVAL.ONE_NAME]),
-
-        ...bracketedName
-          .split(" ")
-          .map((i) => i.trim())
-          .filter((i) => i.length)
-          .map((w) => [makeStemmed(w), MATCHVAL.ONE_STEM]),
-      ];
+      variations = [...variations, ...makeSubVariations(bracketedName)];
     }
   }
 

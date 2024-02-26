@@ -5,7 +5,18 @@ import {
   getScore,
   makeVariations,
   MATCHVAL,
+  makeFirstInitials,
 } from "./lib";
+
+describe("makeFirstInitials", () => {
+  it("does it with one first name", () => {
+    expect(makeFirstInitials("hello world")).toEqual("h world");
+  });
+  it("does it with two first names", () => {
+    expect(makeFirstInitials("hello there world")).toEqual("h t world");
+  });
+
+});
 
 describe("normalise", () => {
   it("makes things lower case", () => {
@@ -144,7 +155,7 @@ describe("getScore", () => {
   it("secondary match", () => {
     const matchesMap = makeMatchesMap(["Hello World"]);
     expect(getScore("H World", matchesMap)[1]).toEqual(["Hello World"]);
-    expect(getScore("H World", matchesMap)[0]).toBeGreaterThan(20);
+    expect(getScore("H World", matchesMap)[0]).toBeGreaterThan(18);
     expect(getScore("H World", matchesMap)[0]).toBeLessThan(100);
   });
 

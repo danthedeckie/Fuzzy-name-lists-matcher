@@ -6,7 +6,7 @@ const listTwoEl = document.getElementById("listTwo");
 const outputEl = document.getElementById("matchesOutput");
 
 function scoreClass(value) {
-  if (value > 99) {
+  if (value > 98.5) {
     return "certain";
   }
   if (value > 40) {

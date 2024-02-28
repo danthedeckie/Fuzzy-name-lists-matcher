@@ -1,6 +1,6 @@
 export const MATCHVAL = {
   TOTAL: 1000,
-  TOTAL_STEM: 800,
+  TOTAL_STEM: 900,
   TWO_NAMES_MATCH: 300,
   INITIALS_AND_FINAL: 50,
   INITIALS: 2,
@@ -72,6 +72,7 @@ function makeStemmed(value) {
     .replace("mac", "mc") // Macfarlane/mcfarlane
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
+    // TODO - think about '-athon', '-tina', and other common suffixes???
     .replace("ian", "") // Gillian / Gill
     .replace(/(\w)ian/, "$1") // Gillian / Gill
     .replace(/(\w)iel/, "$1") // Daniel / Dan
@@ -118,9 +119,10 @@ function makeSubVariations(value) {
   }
 
   if (splitNames.length > 1) {
-    const mostCommonCombined = `${splitNames[0]} ${splitNames[1]}`;
+    const mostCommonCombined = `${splitNames[0]} ${splitNames.toReversed()[0]}`;
     if (mostCommonCombined !== value) {
-      variations.push([mostCommonCombined, MATCHVAL.TWO_NAMES_MATCH * 2]);
+      variations.push([mostCommonCombined, MATCHVAL.TWO_NAMES_MATCH]);
+      variations.push([makeStemmed(mostCommonCombined), MATCHVAL.TOTAL_STEM]);
     }
 
     variations = [

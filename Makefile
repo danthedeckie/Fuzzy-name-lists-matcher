@@ -11,7 +11,10 @@ autotest:
 	node --experimental-vm-modules node_modules/jest/bin/jest.js --watchAll
 
 format:
-	node node_modules/@biomejs/biome/bin/biome format --write src/
+	npm run format --write src/
+
+format-check:
+	npm run format --write src/
 
 lint:
-	node node_modules/@biomejs/biome/bin/biome lint src/
+	npm run lint src/

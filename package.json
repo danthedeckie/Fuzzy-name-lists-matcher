@@ -6,7 +6,10 @@
   },
   "scripts": {
     "esbuild": "esbuild",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
+    "lint": "node ./node_modules/@biomejs/biome/bin/biome lint src/",
+    "format": "node ./node_modules/@biomejs/biome/bin/biome format --write src/",
+    "format-check": "node ./node_modules/@biomejs/biome/bin/biome format src/"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",

@@ -19,7 +19,7 @@ export function normalise(value) {
     value
       // remove beginning/ending whitespace:
       .trim()
-      .replace(/[\.'\ʼ]/g, "") // O'Leary, etc.
+      .replace(/[\.'ʼ]/g, "") // O'Leary, etc.
       .replace(/[\s\-]+/g, " ") // Ffink-Nottle
       .toLowerCase()
       // strip common titles:
@@ -51,7 +51,7 @@ export function makeFirstInitials(value) {
 }
 
 function makeStemmed(value) {
-  let cleaned = value
+  const cleaned = value
     // replace double letters
     .replace(/(\w)(\1)/g, "$1")
     // .replace("ll", "l") // allison/alison
@@ -113,7 +113,7 @@ function makeSubVariations(value) {
     }
   }
 
-  let nameWithoutIndividualLetters = value.replace(/ . /g, " ");
+  const nameWithoutIndividualLetters = value.replace(/ . /g, " ");
   if (nameWithoutIndividualLetters !== value) {
     variations.push([nameWithoutIndividualLetters, MATCHVAL.TOTAL]);
   }
@@ -143,7 +143,7 @@ export function makeVariations(value) {
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
   const nameOutsideBrackets = normalise(
-    value.replace(/\([^\)]*\)/g, "").trim()
+    value.replace(/\([^\)]*\)/g, "").trim(),
   );
   let variations = makeSubVariations(nameOutsideBrackets);
 
@@ -198,16 +198,14 @@ export function getScore(one, matchesMap) {
       for (const [phrase, score] of match) {
         foundNames.set(
           phrase,
-          (foundNames.get(phrase) || 0) + score * variationScore
+          (foundNames.get(phrase) || 0) + score * variationScore,
         );
       }
     }
   }
 
-  let totalScore = Math.pow(
-    [...foundNames.values()].reduce((a, b) => a + b, 0) / 150,
-    0.5
-  );
+  let totalScore =
+    ([...foundNames.values()].reduce((a, b) => a + b, 0) / 150) ** 0.5;
   const highestScore = Math.max(...foundNames.values());
 
   const cutoff = Math.max(highestScore / 10, 0.1);

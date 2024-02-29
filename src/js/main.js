@@ -3,13 +3,16 @@ import { findMatches } from "./lib";
 const buttonEl = document.getElementById("findMatchesButton");
 const listOneEl = document.getElementById("listOne");
 const listTwoEl = document.getElementById("listTwo");
+const listOneCountEl = document.getElementById("listOne-count");
+const listTwoCountEl = document.getElementById("listTwo-count");
+
 const outputEl = document.getElementById("matchesOutput");
 
 function scoreClass(value) {
   if (value > 98.5) {
     return "certain";
   }
-  if (value > 40) {
+  if (value > 33) {
     return "possible";
   }
   if (value < 1.1) {
@@ -32,8 +35,8 @@ buttonEl.addEventListener("click", () => {
       .sort(
         (
           [name, [score, possibleMatches]],
-          [name2, [score2, possibleMatches2]],
-        ) => score2 - score,
+          [name2, [score2, possibleMatches2]]
+        ) => score2 - score
       );
     const output = sorted.map(
       ([name, [score, possibleMatches]]) =>
@@ -41,7 +44,7 @@ buttonEl.addEventListener("click", () => {
         <td>${name}</td>
         <td><div class="matchoptions">${possibleMatches}</div></td>
         <td class="score">${score.toFixed(2)}</td>
-      </tr>`,
+      </tr>`
     );
 
     matchesOutput.innerHTML = [...output].join("\n");
@@ -49,4 +52,18 @@ buttonEl.addEventListener("click", () => {
     buttonEl.textContent = "Search";
     buttonEl.style.cursor = "auto";
   }, 1);
+});
+
+listOneEl.addEventListener("blur", () => {
+  listOneEl.value = listOneEl.value.trim();
+  listOneCountEl.innerHTML = `(${
+    listOneEl.value.split(/\r?\n/).filter((i) => i.length).length
+  })`;
+});
+
+listTwoEl.addEventListener("blur", () => {
+  listTwoEl.value = listTwoEl.value.trim();
+  listTwoCountEl.innerHTML = `(${
+    listTwoEl.value.split(/\r?\n/).filter((i) => i.length).length
+  })`;
 });

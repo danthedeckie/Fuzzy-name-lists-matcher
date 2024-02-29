@@ -8,19 +8,22 @@
     <h1>Name finder</h1>
     <div class="intro">
       <p>
-      Select the columns of data from your spreadsheet.<br>
-      (If you have 2 columns for first &amp; last names, select both columns together)<br>
-      Press "Copy", and paste into the boxes here.<br>
+        Select the columns of data from your spreadsheet.<br />
+        (If you have 2 columns for first &amp; last names, select both columns
+        together)<br />
+        Press "Copy", and paste into the boxes here.<br />
       </p>
     </div>
     <div class="entry">
       <label>
         Our names:
         <textarea id="listOne"></textarea><br />
+      <span id="listOne-count"></span>
       </label>
       <label>
         Where we want to find them:
         <textarea id="listTwo"></textarea><br />
+      <span id="listTwo-count"></span>
       </label>
     </div>
     <div class="buttons">
@@ -41,7 +44,7 @@
         <tr class="possible">
           <td>Example possible match</td>
           <td>...</td>
-          <td>30</td>
+          <td>33</td>
         </tr>
         <tr>
           <td>Example probable miss</td>

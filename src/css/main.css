@@ -105,10 +105,16 @@ tr:nth-child(even).possible {
   background-color: #ffd470;
 }
 
+.unlikely {
+  color: #666666;
+  font-style: italic;
+}
+
 .nothing {
   color: #aaaaaa;
   font-style: italic;
 }
+
 
 tr:nth-child(even).nothing {
   background-color: #f8f8f8;
@@ -124,4 +130,14 @@ tr:nth-child(even).nothing {
   display: -webkit-box;
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
+}
+
+span.joiner {
+  color: #ffffff;
+  font-style: italic;
+}
+
+.less-likely {
+  opacity: 0.5;
+  font-style: italic;
 }

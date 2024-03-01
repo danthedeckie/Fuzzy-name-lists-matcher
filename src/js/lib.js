@@ -143,7 +143,7 @@ export function makeVariations(value) {
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
   const nameOutsideBrackets = normalise(
-    value.replace(/\([^\)]*\)/g, "").trim(),
+    value.replace(/\([^\)]*\)/g, "").trim()
   );
   let variations = makeSubVariations(nameOutsideBrackets);
 
@@ -198,26 +198,30 @@ export function getScore(one, matchesMap) {
       for (const [phrase, score] of match) {
         foundNames.set(
           phrase,
-          (foundNames.get(phrase) || 0) + score * variationScore,
+          (foundNames.get(phrase) || 0) + score * variationScore
         );
       }
     }
   }
 
-  let totalScore =
-    ([...foundNames.values()].reduce((a, b) => a + b, 0) / 150) ** 0.5;
   const highestScore = Math.max(...foundNames.values());
 
-  const cutoff = Math.max(highestScore / 10, 0.1);
+  const cutoff = Math.max(highestScore / 3, 0.1);
   const sortedNames = [
     ...[...foundNames.entries()]
       .filter((a) => a[1] > cutoff)
       .sort((a, b) => b[1] - a[1])
-      .map((i) => i[0]),
+      // .map((i) => `${i[0]} (${Math.max((i[1] / 160) ** 0.5).toFixed(0)})`),
+      .map((i) => [i[0], (i[1] / highestScore)]),
+      // .map((i) => i[0]),
   ];
 
+  // The 'total' score is the one we show as a number to the end user.
+  let totalScore = Math.max(0, highestScore / 160) ** 0.5;
+  // To make things less confusing for users, reduce all non-100% matches that score really well
+  // down to 99, and set any exact matches to 100.
   if (totalScore > 99) {
-    if (normalise(one) === normalise(sortedNames[0])) {
+    if (normalise(one) === normalise(sortedNames[0][0])) {
       totalScore = 100;
     } else {
       totalScore = 99;

@@ -18,6 +18,18 @@ function scoreClass(value) {
   if (value < 1.1) {
     return "nothing";
   }
+  if (value < 5) {
+    return 'unlikely';
+  }
+}
+
+function makeMatchDisplay([name, probabilty]) {
+  if (probabilty > 0.6) {
+    return name;
+  }
+  else {
+    return `<span class="less-likely">${name}</span>`;
+  }
 }
 
 buttonEl.addEventListener("click", () => {
@@ -42,7 +54,7 @@ buttonEl.addEventListener("click", () => {
       ([name, [score, possibleMatches]]) =>
         `<tr class="${scoreClass(score)}">
         <td>${name}</td>
-        <td><div class="matchoptions">${possibleMatches}</div></td>
+        <td><div class="matchoptions">${possibleMatches.map(makeMatchDisplay).join(' <span class="joiner">⊕</span> ')}</div></td>
         <td class="score">${score.toFixed(2)}</td>
       </tr>`,
     );

@@ -6,6 +6,7 @@ import {
   makeVariations,
   MATCHVAL,
   makeFirstInitials,
+  makeFirstInitialAndLastName,
 } from "./lib";
 
 describe("makeFirstInitials", () => {
@@ -17,6 +18,14 @@ describe("makeFirstInitials", () => {
   });
   it("does it with 'x yyy zzzzz'", () => {
     expect(makeFirstInitials("h there world")).toEqual("h t world");
+  });
+
+});
+describe('makeFirstInitialAndLastName', () => {
+  it("does it with 'x yyy zzzzz'", () => {
+    const value = "h there world";
+    const output = makeFirstInitialAndLastName(value).replace(/ . /, " ");
+      expect(output).toEqual("h world");
   });
 });
 
@@ -72,12 +81,12 @@ describe("makeVariations", () => {
     expect(variations).toContainEqual(["h c", MATCHVAL.INITIALS]);
     expect(variations).toContainEqual(["hey", MATCHVAL.ONE_NAME]);
     expect(variations).toContainEqual(["cosmos", MATCHVAL.ONE_NAME]);
-    expect(variations).toContainEqual(["h", MATCHVAL.ONE_STEM]);
+    // expect(variations).toContainEqual(["h", MATCHVAL.ONE_STEM]);
     expect(variations).toContainEqual(["c_sm_s", MATCHVAL.ONE_STEM]);
   });
   it("copes with multiple bracket versions", () => {
     const variations = makeVariations(
-      "(Julia Elizabeth) WALPORT (Dr Julia Neild)",
+      "(Julia Elizabeth) WALPORT (Dr Julia Neild)"
     );
     const words = variations.map(([a, b]) => a);
     expect(words).not.toContain("");
@@ -90,21 +99,16 @@ describe("makeVariations", () => {
     const variations = makeVariations("hello g world");
     expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
   });
-  // it("comapre", () => {
-  //   const variations = makeVariations("David Williams");
-  //   const variations2 = makeVariations("David Walliams");
-  //     expect(variations).toEqual(variations2);
-  // });
 });
 
 describe("makeMatchesMap", () => {
   it("works with one item", () => {
     const output = makeMatchesMap(["Hello World"]);
     expect(output.get("hello world").get("Hello World")).toEqual(
-      1000, // MATCHVAL.TOTAL
+      1000 // MATCHVAL.TOTAL
     );
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIALS_AND_FINAL
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
   });
@@ -112,13 +116,13 @@ describe("makeMatchesMap", () => {
     const output = makeMatchesMap(["Hello World", "Be Kind"]);
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIALS_AND_FINAL
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("be kind").get("Be Kind")).toEqual(1000);
     expect(output.get("b kind").get("Be Kind")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIALS_AND_FINAL
     );
     expect(output.get("b k").get("Be Kind")).toEqual(MATCHVAL.INITIALS);
   });
@@ -127,14 +131,14 @@ describe("makeMatchesMap", () => {
 
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIALS_AND_FINAL
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("house wooster").get("House Wooster")).toEqual(1000);
     expect(output.get("h wooster").get("House Wooster")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIALS_AND_FINAL
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
   });
@@ -177,19 +181,24 @@ describe("getScore", () => {
     expect(singleScore[0]).toEqual(doubleScore[0]);
   });
 
-  // it("surname only match is NOT 100", () => {
-  //   const matchesMap = makeMatchesMap(["(Annie George) TEST"]);
-  //   expect(getScore("Mike Test", matchesMap)).toEqual([
-  //     20,
-  //     ["(Annie George) TEST"],
-  //   ]);
-  // });
+  it("surname only match is below 30", () => {
+    const matchesMap = makeMatchesMap(["(Annie George) TEST"]);
+    expect(getScore("Mike Test", matchesMap)[0]).toBeLessThan(30);
+  });
 
   it("get's a good match score for missing middle name only from bracketed", () => {
     const matchesMap = makeMatchesMap(["Hello LARGE-WORLD (Hello World)"]);
     const matchScore = getScore("Hello M World", matchesMap);
 
-    expect(matchScore[1]).toEqual(["Hello LARGE-WORLD (Hello World)"]);
+    expect(matchScore[1][0][0]).toEqual("Hello LARGE-WORLD (Hello World)");
+    expect(matchScore[0]).toBeGreaterThan(20);
+    expect(matchScore[0]).toBeLessThan(100);
+  });
+
+  it("finds gareth yellow against ", () => {
+    const matchesMap = makeMatchesMap(["gareth YELLOW"]);
+    const matchScore = getScore("g bbb yellow", matchesMap);
+
     expect(matchScore[0]).toBeGreaterThan(20);
     expect(matchScore[0]).toBeLessThan(100);
   });
@@ -208,10 +217,10 @@ describe("findMatches", () => {
     const otherListPhrases = ["H World"];
 
     const foundScore = findMatches([expectedPhrase], otherListPhrases).filter(
-      ([phrase, _score]) => phrase === expectedPhrase,
+      ([phrase, _score]) => phrase === expectedPhrase
     )[0];
 
-    expect(foundScore[1][0]).toBeLessThan(25);
+    expect(foundScore[1][0]).toBeLessThan(40);
     expect(foundScore[1][0]).toBeGreaterThan(10);
   });
 
@@ -220,10 +229,10 @@ describe("findMatches", () => {
     const otherListPhrases = ["H. World"];
 
     const foundScore = findMatches([expectedPhrase], otherListPhrases).filter(
-      ([phrase, _score]) => phrase === expectedPhrase,
+      ([phrase, _score]) => phrase === expectedPhrase
     )[0];
 
-    expect(foundScore[1][0]).toBeLessThan(25);
+    expect(foundScore[1][0]).toBeLessThan(40);
     expect(foundScore[1][0]).toBeGreaterThan(10);
   });
 
@@ -237,7 +246,3 @@ describe("findMatches", () => {
     ]);
   });
 });
-
-// test('foo', () => {
-//     expect(makeVariations('(Julia Elizabeth) WALPORT (Dr Julia Neild)')).toEqual('foo');
-// });

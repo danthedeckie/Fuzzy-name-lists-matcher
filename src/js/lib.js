@@ -2,7 +2,7 @@ export const MATCHVAL = {
   TOTAL: 1000,
   TOTAL_STEM: 900,
   TWO_NAMES_MATCH: 300,
-  INITIALS_AND_FINAL: 50,
+  INITIALS_AND_FINAL: 200,
   INITIALS: 2,
   ONE_NAME: 4,
   ONE_STEM: 2,
@@ -50,23 +50,24 @@ export function makeFirstInitials(value) {
   return value.replace(/(\w)\w+\s+/g, "$1 ").replace(/\s+/g, " ");
 }
 
+export function makeFirstInitialAndLastName(value) {
+  return value
+    .replace(/(\w)\w+\s+/g, "$1 ")
+    .replace(/\s+/g, " ")
+    .replace(/ . /, " ");
+}
+
 function makeStemmed(value) {
   const cleaned = value
     // replace double letters
     .replace(/(\w)(\1)/g, "$1")
-    // .replace("ll", "l") // allison/alison
-    // .replace("ff", "f") // jeff/jef
-    // .replace("bb", "b") // Bobby / bob
-    // .replace("nn", "n") // Dennis / Denis
-    // .replace("tt", "t") // Matt / Mat
-    // .replace("ss", "s") // Katniss / katniss
     .replace("ph", "f") // philipe/filipe
     .replace("ge", "je") // jeff/geoff
     .replace("g", "j") // Gill/jill
-    .replace("k", "c") // Kate/cate
+    .replace("k", "c") // Kate/cath
     .replace("z", "s") // Elizabeth/Elisabeth
     .replace("tch", "ch") // watch / wach
-    .replace("th", "t") // wath / watt
+    .replace("th", "t") // esther / ester
     .replace(/[rw]/, "b") // bill/will, rob/bob
     .replace("oh", "o") // john/jon
     .replace("mac", "mc") // Macfarlane/mcfarlane
@@ -95,9 +96,18 @@ function makeSubVariations(value) {
   // First the 'full names' at full value:
   let variations = [
     [value, MATCHVAL.TOTAL],
-    [makeStemmed(value), MATCHVAL.TOTAL_STEM],
+    [
+      splitNames
+        .map(makeStemmed)
+        .filter((m) => m.length > 1)
+        .join(" "),
+      MATCHVAL.TOTAL_STEM,
+    ],
     // Plus all the individual names (stemmed) at that value:
-    ...splitNames.map((w) => [makeStemmed(w), MATCHVAL.ONE_STEM]),
+    ...splitNames
+      .map(makeStemmed)
+      .filter((m) => m.length > 1)
+      .map((w) => [w, MATCHVAL.ONE_STEM]),
   ];
 
   // All combinations of names (& stemmed Names)
@@ -125,14 +135,17 @@ function makeSubVariations(value) {
       variations.push([makeStemmed(mostCommonCombined), MATCHVAL.TOTAL_STEM]);
     }
 
-    variations = [
-      ...variations,
+    const firstInitialsAndLastName = makeFirstInitials(value);
+    const firstInitialAndLastName = makeFirstInitialAndLastName(value);
 
+    variations.push(
       ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
-      [makeFirstInitials(value), MATCHVAL.INITIALS_AND_FINAL],
-      // [makeFirstInitials(value).replace(/ . /, ''), MATCHVAL.INITIALS_AND_FINAL],
-      [makeInitials(value), MATCHVAL.INITIALS],
-    ];
+      [firstInitialsAndLastName, MATCHVAL.INITIALS_AND_FINAL],
+      [makeInitials(value), MATCHVAL.INITIALS]
+    );
+    if (firstInitialAndLastName !== firstInitialsAndLastName) {
+      variations.push([firstInitialAndLastName, MATCHVAL.INITIALS_AND_FINAL]);
+    }
   }
   return variations;
 }
@@ -143,25 +156,15 @@ export function makeVariations(value) {
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
   const nameOutsideBrackets = normalise(
-    value.replace(/\([^\)]*\)/g, "").trim(),
+    value.replace(/\([^\)]*\)/g, "").trim()
   );
   let variations = makeSubVariations(nameOutsideBrackets);
-
-  // // WIP - if only one name outside brackets, use total name not individual name
-  // if (
-  //   nameOutsideBrackets.split(" ").length === 1 &&
-  //   value.indexOf("(") !== -1
-  // ) {
-  //   const bracketsRemovedNames = normalise(value.replace(/[\(\)]/g, ""));
-  //   console.log(bracketsRemovedNames, nameOutsideBrackets);
-  //   variations = [...variations, ...makeSubVariations(bracketsRemovedNames)]
-  // }
 
   const bracketedNames = normalise(value).matchAll(/\(([^\)]*)\)/g);
 
   for (const [_, bracketedName] of bracketedNames) {
     if (nameOutsideBrackets !== bracketedName) {
-      variations = [...variations, ...makeSubVariations(bracketedName)];
+      variations.push(...makeSubVariations(bracketedName));
     }
   }
 
@@ -198,7 +201,7 @@ export function getScore(one, matchesMap) {
       for (const [phrase, score] of match) {
         foundNames.set(
           phrase,
-          (foundNames.get(phrase) || 0) + score * variationScore,
+          (foundNames.get(phrase) || 0) + score * variationScore
         );
       }
     }
@@ -207,17 +210,14 @@ export function getScore(one, matchesMap) {
   const highestScore = Math.max(...foundNames.values());
 
   const cutoff = Math.max(highestScore / 3, 0.1);
-  const sortedNames = [
-    ...[...foundNames.entries()]
-      .filter((a) => a[1] > cutoff)
-      .sort((a, b) => b[1] - a[1])
-      // .map((i) => `${i[0]} (${Math.max((i[1] / 160) ** 0.5).toFixed(0)})`),
-      .map((i) => [i[0], i[1] / highestScore]),
-    // .map((i) => i[0]),
-  ];
+  const sortedNames = [...foundNames.entries()]
+    .filter((a) => a[1] > cutoff)
+    .sort((a, b) => b[1] - a[1])
+    .map((i) => [i[0], i[1] / highestScore]);
 
   // The 'total' score is the one we show as a number to the end user.
   let totalScore = Math.max(0, highestScore / 160) ** 0.5;
+
   // To make things less confusing for users, reduce all non-100% matches that score really well
   // down to 99, and set any exact matches to 100.
   if (totalScore > 99) {

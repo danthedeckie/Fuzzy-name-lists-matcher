@@ -15,6 +15,9 @@ describe("makeFirstInitials", () => {
   it("does it with two first names", () => {
     expect(makeFirstInitials("hello there world")).toEqual("h t world");
   });
+  it("does it with 'x yyy zzzzz'", () => {
+    expect(makeFirstInitials("h there world")).toEqual("h t world");
+  });
 });
 
 describe("normalise", () => {
@@ -148,12 +151,15 @@ describe("makeMatchesMap", () => {
 describe("getScore", () => {
   it("exact match", () => {
     const matchesMap = makeMatchesMap(["Hello World"]);
-    expect(getScore("Hello World", matchesMap)).toEqual([100, ["Hello World"]]);
+    expect(getScore("Hello World", matchesMap)).toEqual([
+      100,
+      [["Hello World", 1.0]],
+    ]);
   });
 
   it("secondary match", () => {
     const matchesMap = makeMatchesMap(["Hello World"]);
-    expect(getScore("H World", matchesMap)[1]).toEqual(["Hello World"]);
+    expect(getScore("H World", matchesMap)[1]).toEqual([["Hello World", 1.0]]);
     expect(getScore("H World", matchesMap)[0]).toBeGreaterThan(18);
     expect(getScore("H World", matchesMap)[0]).toBeLessThan(100);
   });
@@ -161,6 +167,14 @@ describe("getScore", () => {
   it("non-match", () => {
     const matchesMap = makeMatchesMap(["Hello World"]);
     expect(getScore("Banana", matchesMap)).toEqual([0, []]);
+  });
+
+  it("doesn't get bigger with hits to different results", () => {
+    const singleScore = getScore("foo", makeMatchesMap(["fu"]));
+    const doubleScore = getScore("foo", makeMatchesMap(["fu", "fa"]));
+    // expect(makeMatchesMap(['fu'])).toEqual('');
+    // expect(makeMatchesMap(['fu', 'fa'])).toEqual('');
+    expect(singleScore[0]).toEqual(doubleScore[0]);
   });
 
   // it("surname only match is NOT 100", () => {
@@ -185,7 +199,7 @@ describe("findMatches", () => {
   test("exact match", () => {
     expect(findMatches(["Hello World"], ["Hello World"])).toContainEqual([
       "Hello World",
-      [100, ["Hello World"]],
+      [100, [["Hello World", 1]]],
     ]);
   });
 

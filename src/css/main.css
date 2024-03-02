@@ -135,6 +135,7 @@ tr:nth-child(even).nothing {
 span.joiner {
   color: #ffffff;
   font-style: italic;
+  text-shadow: 0 0 1px #000;
 }
 
 .less-likely {

@@ -2,6 +2,8 @@ export const MATCHVAL = {
   TOTAL: 1000,
   TOTAL_STEM: 900,
   TWO_NAMES_MATCH: 300,
+  TWO_STEMS_MATCH: 200,
+  INITIAL_AND_FINAL: 250,
   INITIALS_AND_FINAL: 200,
   INITIALS: 2,
   ONE_NAME: 4,
@@ -88,6 +90,10 @@ function makeStemmed(value) {
   return cleaned;
 }
 
+function dedup(values) {
+  return [...new Set(values).values()];
+}
+
 /* And combine them all: */
 
 function makeSubVariations(value) {
@@ -104,24 +110,35 @@ function makeSubVariations(value) {
       MATCHVAL.TOTAL_STEM,
     ],
     // Plus all the individual names (stemmed) at that value:
-    ...splitNames
-      .map(makeStemmed)
-      .filter((m) => m.length > 1)
-      .map((w) => [w, MATCHVAL.ONE_STEM]),
+    ...dedup(splitNames.map(makeStemmed).filter((m) => m.length > 1)).map(
+      (w) => [w, MATCHVAL.ONE_STEM]
+    ),
   ];
 
   // All combinations of names (& stemmed Names)
+  const combinationNameVariations = [];
+  const combinationStemVariations = [];
+
   for (const name of splitNames) {
     for (const name2 of splitNames) {
       if (name !== name2 && `${name} ${name2}` !== value) {
-        variations.push([`${name} ${name2}`, MATCHVAL.TWO_NAMES_MATCH]);
-        variations.push([
-          `${makeStemmed(name)} ${makeStemmed(name2)}`,
-          MATCHVAL.TWO_NAMES_MATCH,
-        ]);
+        combinationNameVariations.push(`${name} ${name2}`);
+        combinationStemVariations.push(
+          `${makeStemmed(name)} ${makeStemmed(name2)}`
+        );
       }
     }
   }
+  variations.push(
+    ...dedup(combinationNameVariations).map((v) => [
+      v,
+      MATCHVAL.TWO_NAMES_MATCH,
+    ]),
+    ...dedup(combinationStemVariations).map((v) => [
+      v,
+      MATCHVAL.TWO_STEMS_MATCH,
+    ])
+  );
 
   const nameWithoutIndividualLetters = value.replace(/ . /g, " ");
   if (nameWithoutIndividualLetters !== value) {
@@ -139,12 +156,12 @@ function makeSubVariations(value) {
     const firstInitialAndLastName = makeFirstInitialAndLastName(value);
 
     variations.push(
-      ...splitNames.map((w) => [w, MATCHVAL.ONE_NAME]),
-      [firstInitialsAndLastName, MATCHVAL.INITIALS_AND_FINAL],
+      ...dedup(splitNames).map((w) => [w, MATCHVAL.ONE_NAME]),
+      [firstInitialAndLastName, MATCHVAL.INITIAL_AND_FINAL],
       [makeInitials(value), MATCHVAL.INITIALS]
     );
     if (firstInitialAndLastName !== firstInitialsAndLastName) {
-      variations.push([firstInitialAndLastName, MATCHVAL.INITIALS_AND_FINAL]);
+      variations.push([firstInitialsAndLastName, MATCHVAL.INITIALS_AND_FINAL]);
     }
   }
   return variations;

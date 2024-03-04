@@ -19,13 +19,12 @@ describe("makeFirstInitials", () => {
   it("does it with 'x yyy zzzzz'", () => {
     expect(makeFirstInitials("h there world")).toEqual("h t world");
   });
-
 });
-describe('makeFirstInitialAndLastName', () => {
+describe("makeFirstInitialAndLastName", () => {
   it("does it with 'x yyy zzzzz'", () => {
     const value = "h there world";
     const output = makeFirstInitialAndLastName(value).replace(/ . /, " ");
-      expect(output).toEqual("h world");
+    expect(output).toEqual("h world");
   });
 });
 
@@ -57,7 +56,7 @@ describe("makeVariations", () => {
   it("simple name", () => {
     const variations = makeVariations("hello world");
     expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
-    expect(variations).toContainEqual(["h world", MATCHVAL.INITIALS_AND_FINAL]);
+    expect(variations).toContainEqual(["h world", MATCHVAL.INITIAL_AND_FINAL]);
     expect(variations).toContainEqual(["h w", MATCHVAL.INITIALS]);
     expect(variations).toContainEqual(["hello", MATCHVAL.ONE_NAME]);
     expect(variations).toContainEqual(["world", MATCHVAL.ONE_NAME]);
@@ -68,7 +67,7 @@ describe("makeVariations", () => {
   it("name with bracketed version", () => {
     const variations = makeVariations("hello WORLD (hey cosmos)");
     expect(variations).toContainEqual(["hello world", MATCHVAL.TOTAL]);
-    expect(variations).toContainEqual(["h world", MATCHVAL.INITIALS_AND_FINAL]);
+    expect(variations).toContainEqual(["h world", MATCHVAL.INITIAL_AND_FINAL]);
     expect(variations).toContainEqual(["h w", MATCHVAL.INITIALS]);
     expect(variations).toContainEqual(["hello", MATCHVAL.ONE_NAME]);
     expect(variations).toContainEqual(["world", MATCHVAL.ONE_NAME]);
@@ -76,7 +75,7 @@ describe("makeVariations", () => {
     expect(variations).toContainEqual(["hey cosmos", MATCHVAL.TOTAL]);
     expect(variations).toContainEqual([
       "h cosmos",
-      MATCHVAL.INITIALS_AND_FINAL,
+      MATCHVAL.INITIAL_AND_FINAL,
     ]);
     expect(variations).toContainEqual(["h c", MATCHVAL.INITIALS]);
     expect(variations).toContainEqual(["hey", MATCHVAL.ONE_NAME]);
@@ -108,7 +107,7 @@ describe("makeMatchesMap", () => {
       1000 // MATCHVAL.TOTAL
     );
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
   });
@@ -116,13 +115,13 @@ describe("makeMatchesMap", () => {
     const output = makeMatchesMap(["Hello World", "Be Kind"]);
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("be kind").get("Be Kind")).toEqual(1000);
     expect(output.get("b kind").get("Be Kind")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL
     );
     expect(output.get("b k").get("Be Kind")).toEqual(MATCHVAL.INITIALS);
   });
@@ -131,14 +130,14 @@ describe("makeMatchesMap", () => {
 
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("house wooster").get("House Wooster")).toEqual(1000);
     expect(output.get("h wooster").get("House Wooster")).toEqual(
-      MATCHVAL.INITIALS_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
   });
@@ -202,6 +201,25 @@ describe("getScore", () => {
     expect(matchScore[0]).toBeGreaterThan(20);
     expect(matchScore[0]).toBeLessThan(100);
   });
+
+  // it("doesn't get a better score for matching the same word multiple times", () => {
+  //   const TwoMatches = makeMatchesMap(["john john"]);
+  //   const ThreeMatches = makeMatchesMap(["john john john"]);
+  //   expect(getScore("john smith", TwoMatches)[0]).toEqual(
+  //     getScore("john smith", ThreeMatches)[0]
+  //   );
+  // });
+
+  // it("doesn't get a better score for matching the same stem word multiple times", () => {
+  //   const TwoMatches = makeMatchesMap(["ian john"]);
+  //   const ThreeMatches = makeMatchesMap(["ian john jon"]);
+  //     console.log(TwoMatches);
+  //     console.log(ThreeMatches);
+
+  //   expect(getScore("john smith", TwoMatches)[0]).toEqual(
+  //     getScore("john smith", ThreeMatches)[0]
+  //   );
+  // });
 });
 
 describe("findMatches", () => {

@@ -1,4 +1,5 @@
 export const MATCHVAL = {
+  MISSING_NAME_DEBOOST: 8000,
   TOTAL: 1000,
   TOTAL_STEM: 900,
   TWO_NAMES_MATCH: 300,
@@ -139,6 +140,12 @@ function makeSubVariations(value) {
       MATCHVAL.TWO_STEMS_MATCH,
     ]),
   );
+  const lastname = splitNames[splitNames.length - 1];
+  variations.push(
+    ...combinationNameVariations
+      .filter((w) => w.includes(splitNames[0]) && w.includes(lastname))
+      .map((v) => [v, MATCHVAL.TWO_NAMES_MATCH * 2]),
+  );
 
   const nameWithoutIndividualLetters = value.replace(/ . /g, " ");
   if (nameWithoutIndividualLetters !== value) {
@@ -211,14 +218,37 @@ export function getScore(one, matchesMap) {
    * */
   const variations = makeVariations(one);
   const foundNames = new Map();
+  const normalisedOriginal = normalise(one);
+  const wordsInOriginal = normalisedOriginal.split(" ").filter((i) => i.length);
+  let individualWordsMatchDeboost = 0;
+  let normalisedName = "";
 
   for (const [variation, variationScore] of variations) {
     const match = matchesMap.get(variation);
     if (match) {
       for (const [phrase, score] of match) {
+        normalisedName = normalise(phrase);
+        individualWordsMatchDeboost = 0;
+
+        for (const individualWord of wordsInOriginal) {
+          if (!normalisedName.includes(individualWord)) {
+            individualWordsMatchDeboost += MATCHVAL.MISSING_NAME_DEBOOST;
+          }
+        }
+        for (const individualWord of normalisedName
+          .split(" ")
+          .filter((i) => i.length)) {
+          if (!normalisedOriginal.includes(individualWord)) {
+            individualWordsMatchDeboost += MATCHVAL.MISSING_NAME_DEBOOST;
+          }
+        }
+
+        // and increase the score for that phrase match
         foundNames.set(
           phrase,
-          (foundNames.get(phrase) || 0) + score * variationScore
+          (foundNames.get(phrase) || 0) +
+            score * variationScore -
+            individualWordsMatchDeboost,
         );
       }
     }

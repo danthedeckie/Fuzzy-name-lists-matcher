@@ -100,7 +100,7 @@ function makeSubVariations(value) {
   const splitNames = value.split(" ").filter((i) => i.length);
 
   // First the 'full names' at full value:
-  let variations = [
+  const variations = [
     [value, MATCHVAL.TOTAL],
     [
       splitNames
@@ -111,7 +111,7 @@ function makeSubVariations(value) {
     ],
     // Plus all the individual names (stemmed) at that value:
     ...dedup(splitNames.map(makeStemmed).filter((m) => m.length > 1)).map(
-      (w) => [w, MATCHVAL.ONE_STEM]
+      (w) => [w, MATCHVAL.ONE_STEM],
     ),
   ];
 
@@ -124,7 +124,7 @@ function makeSubVariations(value) {
       if (name !== name2 && `${name} ${name2}` !== value) {
         combinationNameVariations.push(`${name} ${name2}`);
         combinationStemVariations.push(
-          `${makeStemmed(name)} ${makeStemmed(name2)}`
+          `${makeStemmed(name)} ${makeStemmed(name2)}`,
         );
       }
     }
@@ -137,7 +137,7 @@ function makeSubVariations(value) {
     ...dedup(combinationStemVariations).map((v) => [
       v,
       MATCHVAL.TWO_STEMS_MATCH,
-    ])
+    ]),
   );
 
   const nameWithoutIndividualLetters = value.replace(/ . /g, " ");
@@ -158,7 +158,7 @@ function makeSubVariations(value) {
     variations.push(
       ...dedup(splitNames).map((w) => [w, MATCHVAL.ONE_NAME]),
       [firstInitialAndLastName, MATCHVAL.INITIAL_AND_FINAL],
-      [makeInitials(value), MATCHVAL.INITIALS]
+      [makeInitials(value), MATCHVAL.INITIALS],
     );
     if (firstInitialAndLastName !== firstInitialsAndLastName) {
       variations.push([firstInitialsAndLastName, MATCHVAL.INITIALS_AND_FINAL]);
@@ -173,9 +173,9 @@ export function makeVariations(value) {
    * Eg "Hello World" -> [["hello world", 100], ['h world", 20], ["h w", 5]...]
    * */
   const nameOutsideBrackets = normalise(
-    value.replace(/\([^\)]*\)/g, "").trim()
+    value.replace(/\([^\)]*\)/g, "").trim(),
   );
-  let variations = makeSubVariations(nameOutsideBrackets);
+  const variations = makeSubVariations(nameOutsideBrackets);
 
   const bracketedNames = normalise(value).matchAll(/\(([^\)]*)\)/g);
 
@@ -226,6 +226,9 @@ export function getScore(one, matchesMap) {
 
   const highestScore = Math.max(...foundNames.values());
 
+  // We only want to include possible matches that are either the heighest scoring match,
+  // or very close to it.  So two matches at 75 could both be shown, if there's another at 20,
+  // drop it.
   const cutoff = Math.max(highestScore / 3, 0.1);
   const sortedNames = [...foundNames.entries()]
     .filter((a) => a[1] > cutoff)

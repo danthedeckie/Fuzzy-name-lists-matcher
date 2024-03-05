@@ -45,8 +45,8 @@ buttonEl.addEventListener("click", () => {
       .sort(
         (
           [name, [score, possibleMatches]],
-          [name2, [score2, possibleMatches2]]
-        ) => score2 - score
+          [name2, [score2, possibleMatches2]],
+        ) => score2 - score,
       );
     const output = sorted.map(
       ([name, [score, possibleMatches]]) =>
@@ -56,7 +56,7 @@ buttonEl.addEventListener("click", () => {
           .map(makeMatchDisplay)
           .join(' <span class="joiner">⊕</span> ')}</div></td>
         <td class="score">${score.toFixed(2)}</td>
-      </tr>`
+      </tr>`,
     );
 
     matchesOutput.innerHTML = [...output].join("\n");

@@ -73,10 +73,7 @@ describe("makeVariations", () => {
     expect(variations).toContainEqual(["world", MATCHVAL.ONE_NAME]);
 
     expect(variations).toContainEqual(["hey cosmos", MATCHVAL.TOTAL]);
-    expect(variations).toContainEqual([
-      "h cosmos",
-      MATCHVAL.INITIAL_AND_FINAL,
-    ]);
+    expect(variations).toContainEqual(["h cosmos", MATCHVAL.INITIAL_AND_FINAL]);
     expect(variations).toContainEqual(["h c", MATCHVAL.INITIALS]);
     expect(variations).toContainEqual(["hey", MATCHVAL.ONE_NAME]);
     expect(variations).toContainEqual(["cosmos", MATCHVAL.ONE_NAME]);
@@ -85,7 +82,7 @@ describe("makeVariations", () => {
   });
   it("copes with multiple bracket versions", () => {
     const variations = makeVariations(
-      "(Julia Elizabeth) WALPORT (Dr Julia Neild)"
+      "(Julia Elizabeth) WALPORT (Dr Julia Neild)",
     );
     const words = variations.map(([a, b]) => a);
     expect(words).not.toContain("");
@@ -104,10 +101,10 @@ describe("makeMatchesMap", () => {
   it("works with one item", () => {
     const output = makeMatchesMap(["Hello World"]);
     expect(output.get("hello world").get("Hello World")).toEqual(
-      1000 // MATCHVAL.TOTAL
+      1000, // MATCHVAL.TOTAL
     );
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIAL_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL,
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
   });
@@ -115,13 +112,13 @@ describe("makeMatchesMap", () => {
     const output = makeMatchesMap(["Hello World", "Be Kind"]);
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIAL_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL,
     );
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("be kind").get("Be Kind")).toEqual(1000);
     expect(output.get("b kind").get("Be Kind")).toEqual(
-      MATCHVAL.INITIAL_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL,
     );
     expect(output.get("b k").get("Be Kind")).toEqual(MATCHVAL.INITIALS);
   });
@@ -130,14 +127,14 @@ describe("makeMatchesMap", () => {
 
     expect(output.get("hello world").get("Hello World")).toEqual(1000);
     expect(output.get("h world").get("Hello World")).toEqual(
-      MATCHVAL.INITIAL_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL,
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
     expect(output.get("h w").get("Hello World")).toEqual(MATCHVAL.INITIALS);
 
     expect(output.get("house wooster").get("House Wooster")).toEqual(1000);
     expect(output.get("h wooster").get("House Wooster")).toEqual(
-      MATCHVAL.INITIAL_AND_FINAL
+      MATCHVAL.INITIAL_AND_FINAL,
     );
     expect(output.get("h w").get("House Wooster")).toEqual(MATCHVAL.INITIALS);
   });
@@ -235,7 +232,7 @@ describe("findMatches", () => {
     const otherListPhrases = ["H World"];
 
     const foundScore = findMatches([expectedPhrase], otherListPhrases).filter(
-      ([phrase, _score]) => phrase === expectedPhrase
+      ([phrase, _score]) => phrase === expectedPhrase,
     )[0];
 
     expect(foundScore[1][0]).toBeLessThan(40);
@@ -247,7 +244,7 @@ describe("findMatches", () => {
     const otherListPhrases = ["H. World"];
 
     const foundScore = findMatches([expectedPhrase], otherListPhrases).filter(
-      ([phrase, _score]) => phrase === expectedPhrase
+      ([phrase, _score]) => phrase === expectedPhrase,
     )[0];
 
     expect(foundScore[1][0]).toBeLessThan(40);

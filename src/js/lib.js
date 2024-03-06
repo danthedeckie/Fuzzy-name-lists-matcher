@@ -1,13 +1,13 @@
 export const MATCHVAL = {
-  MISSING_NAME_DEBOOST: 8000,
+  MISSING_NAME_DEBOOST: 5,
   TOTAL: 1000,
   TOTAL_STEM: 900,
   TWO_NAMES_MATCH: 300,
   TWO_STEMS_MATCH: 200,
   INITIAL_AND_FINAL: 250,
   INITIALS_AND_FINAL: 200,
-  INITIALS: 2,
-  ONE_NAME: 4,
+  INITIALS: 10,
+  ONE_NAME: 20,
   ONE_STEM: 2,
 };
 
@@ -267,9 +267,10 @@ export function getScore(one, matchesMap) {
 
   // The 'total' score is the one we show as a number to the end user.
   let totalScore = Math.max(0, highestScore / 160) ** 0.5;
+  // let totalScore = highestScore;
 
-  // To make things less confusing for users, reduce all non-100% matches that score really well
-  // down to 99, and set any exact matches to 100.
+  // // To make things less confusing for users, reduce all non-100% matches that score really well
+  // // down to 99, and set any exact matches to 100.
   if (totalScore > 99) {
     if (normalise(one) === normalise(sortedNames[0][0])) {
       totalScore = 100;

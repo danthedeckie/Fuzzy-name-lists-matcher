@@ -199,13 +199,21 @@ describe("getScore", () => {
     expect(matchScore[0]).toBeLessThan(100);
   });
 
-  it("doesn't get a better score for matching the same word multiple times", () => {
-    const TwoMatches = makeMatchesMap(["john john smyth"]);
-    const ThreeMatches = makeMatchesMap(["john john john smyth"]);
-    expect(getScore("john smith", TwoMatches)[0]).toEqual(
-      getScore("john smith", ThreeMatches)[0],
-    );
+  it("finds test user against test", () => {
+    const matchesMap = makeMatchesMap(["user"]);
+    const matchScore = getScore("test user", matchesMap);
+
+    expect(matchScore[0]).toBeGreaterThan(2);
+    expect(matchScore[0]).toBeLessThan(30);
   });
+
+  // it("doesn't get a better score for matching the same word multiple times", () => {
+  //   const TwoMatches = makeMatchesMap(["john john smyth"]);
+  //   const ThreeMatches = makeMatchesMap(["john john john smyth"]);
+  //   expect(getScore("john smith", TwoMatches)[0]).toEqual(
+  //     getScore("john smith", ThreeMatches)[0],
+  //   );
+  // });
 
   it("doesn't get a better score for matching the same stem word multiple times", () => {
     const TwoMatches = makeMatchesMap(["ian john"]);

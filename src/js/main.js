@@ -41,12 +41,12 @@ buttonEl.addEventListener("click", () => {
     const matches = findMatches(listOne, listTwo);
 
     const sorted = matches
-      .filter(([name, [score, possibleMatches]]) => score > 1)
+      .filter(([name, [score, possibleMatches]]) => score > 3.5)
       .sort(
         (
           [name, [score, possibleMatches]],
-          [name2, [score2, possibleMatches2]],
-        ) => score2 - score,
+          [name2, [score2, possibleMatches2]]
+        ) => score2 - score
       );
     const output = sorted.map(
       ([name, [score, possibleMatches]]) =>
@@ -56,14 +56,16 @@ buttonEl.addEventListener("click", () => {
           .map(makeMatchDisplay)
           .join(' <span class="joiner">⊕</span> ')}</div></td>
         <td class="score">${score.toFixed(2)}</td>
-      </tr>`,
+      </tr>`
     );
 
     matchesOutput.innerHTML = [...output].join("\n");
 
-    buttonEl.textContent = "Search";
-    buttonEl.style.cursor = "auto";
-  }, 1);
+    window.setTimeout(() => {
+      buttonEl.textContent = "Search";
+      buttonEl.style.cursor = "auto";
+    }, 2);
+  }, 2);
 });
 
 listOneEl.addEventListener("blur", () => {

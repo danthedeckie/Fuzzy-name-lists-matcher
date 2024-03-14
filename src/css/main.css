@@ -3,6 +3,8 @@
 }
 body {
   margin: 1rem;
+  background-color: #fcfcf7;
+  color: #000000;
 }
 
 .intro {
@@ -37,8 +39,8 @@ h1 {
 }
 
 button {
-  background-color: #9394f1;
-  border: 1px solid #9394f1;
+  background-color: #a846a0;
+  border: 1px solid #a846a0;
   padding: 0.7rem 1rem 0.5rem;
   border-radius: 2rem;
   font-size: 1.2rem;
@@ -49,13 +51,13 @@ button {
   margin-bottom: 2rem;
   transition: background-color 0.2s, box-shadow 0.1s;
   &:hover {
-    background-color: #a4a6f4;
-    /* border: 1px solid #C9CAF8; */
+    background-color: #c97ec3;
+    border: 1px solid #c97ec3;
     box-shadow: 0rem 0.5rem 0.5rem rgba(0, 0, 0, 0.5);
   }
   &:active {
-    background-color: #5d5fea;
-    border: 1px solid #5d5fea;
+    background-color: #9e4297;
+    border: 1px solid #9e4297;
   }
 }
 
@@ -84,29 +86,41 @@ td {
   &:first-child {
     min-width: 10rem;
   }
+  &:last-child {
+    text-align: right;
+  }
 }
 
 tr:nth-child(even) {
   background-color: #eeeeee;
 }
 
+tr {
+  transition: box-shadow 0.2s;
+}
+
+tr:hover {
+  box-shadow: 0 0 2rem rgba(255, 255, 255, 0.4) inset;
+  transition: box-shadow 0s;
+}
+
 .certain {
-  background-color: #25f8c0;
+  background-color: #a4df90;
   font-weight: bold;
 }
 tr:nth-child(even).certain {
-  background-color: #07daa1;
+  background-color: #97da81;
 }
 
 .possible {
-  background-color: #ffe7ad;
+  background-color: #ffca99;
 }
 tr:nth-child(even).possible {
-  background-color: #ffd470;
+  background-color: #ffc085;
 }
 
 .unlikely {
-  color: #666666;
+  color: #555555;
   font-style: italic;
 }
 
@@ -138,6 +152,18 @@ span.joiner {
 }
 
 .less-likely {
-  opacity: 0.5;
+  opacity: 0.7;
   font-style: italic;
+}
+
+@media (prefers-contrast: more) {
+  .less-likely {
+    opacity: 1;
+  }
+  .unlikely {
+    color: #222222;
+  }
+  .nothing {
+    color: #555555;
+  }
 }

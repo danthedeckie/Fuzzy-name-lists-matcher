@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="en">
   <head>
     <title>Fuzzy list-of-names matcher</title>
     <link rel="stylesheet" href="css/main.css" />
@@ -18,12 +18,12 @@
       <label>
         Our names:
         <textarea id="listOne"></textarea><br />
-      <span id="listOne-count"></span>
+        <span id="listOne-count"></span>
       </label>
       <label>
         Where we want to find them:
         <textarea id="listTwo"></textarea><br />
-      <span id="listTwo-count"></span>
+        <span id="listTwo-count"></span>
       </label>
     </div>
     <div class="buttons">
@@ -43,7 +43,13 @@
         </tr>
         <tr class="possible">
           <td>Example possible match</td>
-          <td>...</td>
+          <td>
+            Possible match
+            <span class="joiner">⊕</span>
+            Similarly possible match
+            <span class="joiner">⊕</span>
+            <span class="less-likely">Less Likely match</span>
+          </td>
           <td>33</td>
         </tr>
         <tr>

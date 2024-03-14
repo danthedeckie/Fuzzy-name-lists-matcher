@@ -27,7 +27,7 @@
       </label>
     </div>
     <div class="buttons">
-      <button type="button" id="findMatchesButton">Search</button><br />
+      <button type="button" id="findMatchesButton" aria-live="polite">Search</button><br />
     </div>
     <table>
       <thead>
@@ -35,7 +35,7 @@
         <td>Possible Matches</td>
         <td>Score</td>
       </thead>
-      <tbody id="matchesOutput">
+      <tbody id="matchesOutput" aria-live="polite">
         <tr class="certain">
           <td>Example almost certain match</td>
           <td>...</td>
@@ -45,9 +45,9 @@
           <td>Example possible match</td>
           <td>
             Possible match
-            <span class="joiner">⊕</span>
+            <span class="joiner" aria-label="or" role="separator">⊕</span>
             Similarly possible match
-            <span class="joiner">⊕</span>
+            <span class="joiner" aria-label="or" role="separator">⊕</span>
             <span class="less-likely">Less Likely match</span>
           </td>
           <td>33</td>

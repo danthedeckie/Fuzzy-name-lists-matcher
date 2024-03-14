@@ -120,12 +120,12 @@ tr:nth-child(even).possible {
 }
 
 .unlikely {
-  color: #555555;
+  color: #333333;
   font-style: italic;
 }
 
 .nothing {
-  color: #aaaaaa;
+  color: #888888;
   font-style: italic;
 }
 
@@ -161,9 +161,9 @@ span.joiner {
     opacity: 1;
   }
   .unlikely {
-    color: #222222;
+    color: #111111;
   }
   .nothing {
-    color: #555555;
+    color: #333333;
   }
 }

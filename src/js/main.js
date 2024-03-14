@@ -63,7 +63,7 @@ buttonEl.addEventListener("click", () => {
         <td>${name}</td>
         <td><div class="matchoptions">${possibleMatches
           .map(makeMatchDisplay)
-          .join(' <span class="joiner">⊕</span> ')}</div></td>
+          .join(' <span class="joiner" aria-label="or" role="separator">⊕</span> ')}</div></td>
         <td class="score">${score.toFixed(2)}</td>
       </tr>`,
     );

@@ -35,19 +35,28 @@ buttonEl.addEventListener("click", () => {
   //buttonEl.disabled = true;
   buttonEl.style.cursor = "wait";
 
+  // use a timeout to delay *actually* running the search for 2ms, which gives the UI
+  // time to update the button text & cursor before a multi-second entire page pause
+  // while it does the filtering:
   window.setTimeout(() => {
     const listOne = listOneEl.value.split(/\r?\n/);
     const listTwo = listTwoEl.value.split(/\r?\n/);
     const matches = findMatches(listOne, listTwo);
 
+    // Drop results below the threshold, and sort the remaining results
+    // by score:
+
     const sorted = matches
-      .filter(([name, [score, possibleMatches]]) => score > 3.5)
+      .filter(([_name, [score, possibleMatches]]) => score > 3.5)
       .sort(
         (
-          [name, [score, possibleMatches]],
-          [name2, [score2, possibleMatches2]]
-        ) => score2 - score
+          [_name, [score, possibleMatches]],
+          [_name2, [score2, _possibleMatches2]],
+        ) => score2 - score,
       );
+
+    // Now display them as rows in the table:
+
     const output = sorted.map(
       ([name, [score, possibleMatches]]) =>
         `<tr class="${scoreClass(score)}">
@@ -56,11 +65,13 @@ buttonEl.addEventListener("click", () => {
           .map(makeMatchDisplay)
           .join(' <span class="joiner">⊕</span> ')}</div></td>
         <td class="score">${score.toFixed(2)}</td>
-      </tr>`
+      </tr>`,
     );
 
-    matchesOutput.innerHTML = [...output].join("\n");
+    outputEl.innerHTML = [...output].join("\n");
 
+    // Use a second timeout to again give the page a chance to finish updating before
+    // removing the button 'Searching...' text & cursor
     window.setTimeout(() => {
       buttonEl.textContent = "Search";
       buttonEl.style.cursor = "auto";

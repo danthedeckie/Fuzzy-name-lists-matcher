@@ -1,4 +1,5 @@
-import { findMatches } from "./lib";
+import { findMatches, sortMatches } from "./lib";
+import { makeTableRow } from "./displayTable";
 
 const buttonEl = document.getElementById("findMatchesButton");
 const listOneEl = document.getElementById("listOne");
@@ -8,34 +9,13 @@ const listTwoCountEl = document.getElementById("listTwo-count");
 
 const outputEl = document.getElementById("matchesOutput");
 
-// Configuration
+// Configuration options:
 const cutoffValueEl = document.getElementById("cutoffValue");
 const possibleMatchSeparatorEl = document.getElementById(
   "possibleMatchSeparator",
 );
 
-function scoreClass(value) {
-  if (value > 98.5) {
-    return "certain";
-  }
-  if (value > 30) {
-    return "possible";
-  }
-  if (value < 1.1) {
-    return "nothing";
-  }
-  if (value < 5) {
-    return "unlikely";
-  }
-}
-
-function makeMatchDisplay([name, probabilty]) {
-  if (probabilty > 0.6) {
-    return name;
-  }
-  return `<span class="less-likely">${name}</span>`;
-}
-
+// The main button gets clicked:
 buttonEl.addEventListener("click", () => {
   const cutoff = parseFloat(cutoffValueEl.value);
   if (Number.isNaN(cutoff)) {
@@ -55,33 +35,14 @@ buttonEl.addEventListener("click", () => {
     const listTwo = listTwoEl.value.split(/\r?\n/);
     const matches = findMatches(listOne, listTwo);
 
-    // Drop results below the threshold, and sort the remaining results
-    // by score:
-
-    const sorted = matches
-      .filter(([_name, [score, possibleMatches]]) => score > cutoff)
-      .sort(
-        (
-          [_name, [score, possibleMatches]],
-          [_name2, [score2, _possibleMatches2]],
-        ) => score2 - score,
-      );
+    // Drop results below the threshold, and sort the remaining results by score:
+    const sorted = sortMatches(matches, cutoff);
 
     // Now display them as rows in the table:
-
     const possibleMatchSeparatorValue = possibleMatchSeparatorEl.value;
 
-    const output = sorted.map(
-      ([name, [score, possibleMatches]]) =>
-        `<tr class="${scoreClass(score)}">
-        <td>${name}</td>
-        <td><div class="matchoptions">${possibleMatches
-          .map(makeMatchDisplay)
-          .join(
-            ` <span class="joiner" aria-label="or" role="separator">${possibleMatchSeparatorValue}</span> `,
-          )}</div></td>
-        <td class="score">${score.toFixed(2)}</td>
-      </tr>`,
+    const output = sorted.map(([name, [score, possibleMatches]]) =>
+      makeTableRow(name, score, possibleMatches, possibleMatchSeparatorValue),
     );
 
     outputEl.innerHTML = [...output].join("\n");
@@ -94,6 +55,9 @@ buttonEl.addEventListener("click", () => {
     }, 2);
   }, 2);
 });
+
+// Make the two list inputs show a 'count' of rows, and trim their data
+// when they lose focus:
 
 listOneEl.addEventListener("blur", () => {
   listOneEl.value = listOneEl.value.trim();
@@ -108,6 +72,8 @@ listTwoEl.addEventListener("blur", () => {
     listTwoEl.value.split(/\r?\n/).filter((i) => i.length).length
   })`;
 });
+
+// Validation for the cutoff value input:
 
 cutoffValueEl.addEventListener("blur", () => {
   let value = parseFloat(cutoffValueEl.value);

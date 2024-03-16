@@ -1,14 +1,24 @@
 export const MATCHVAL = {
-  MISSING_NAME_DEBOOST: 5,
+  // If it's an *exact* 1:1 match:
   TOTAL: 1000,
+  // If the two name stems are exact 1:1 matches:
   TOTAL_STEM: 900,
+  // If 2 of the names match the other name:
   TWO_NAMES_MATCH: 300,
   TWO_STEMS_MATCH: 200,
+  // If the first initial and final name match:
   INITIAL_AND_FINAL: 250,
+  // If all initials and final name match:
   INITIALS_AND_FINAL: 200,
+  // If initial match other name initials:
   INITIALS: 10,
+  // Having a single name match any name in the other:
   ONE_NAME: 20,
+  // Having a single stem match any stem in the other:
   ONE_STEM: 2,
+
+  // And for every name that's *not* in the match at the end, subtract the deboosts:
+  MISSING_NAME_DEBOOST: 5,
 };
 
 export function normalise(value) {
@@ -61,6 +71,16 @@ export function makeFirstInitialAndLastName(value) {
 }
 
 function makeStemmed(value) {
+  /* This function takes a name and converts it to a simplified "stem"
+   * form, eg Thomas -> t_m, Maria -> m_r_, Philip -> f_l_p
+   * which catches a lot of spelling variations.
+   *
+   * It's not perfect - but seems to do OK for now. It could certianly be improved with
+   * many many more different common cases, and language specific things.
+   *
+   * Possibly just going with Soundex/Metaphone might work as well? Or a combination.
+   *
+   * */
   const cleaned = value
     // replace double letters
     .replace(/(\w)(\1)/g, "$1")
@@ -77,6 +97,7 @@ function makeStemmed(value) {
     .replace("mac", "mc") // Macfarlane/mcfarlane
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
+    .replace("ander", "") // Alexander/Alex
     // TODO - think about '-athon', '-tina', and other common suffixes???
     .replace("ian", "") // Gillian / Gill
     .replace(/(\w)ian/, "$1") // Gillian / Gill
@@ -93,6 +114,7 @@ function makeStemmed(value) {
 }
 
 function dedup(values) {
+  /* De-duplicate values in a list */
   return [...new Set(values).values()];
 }
 
@@ -286,4 +308,15 @@ export function getScore(one, matchesMap) {
 export function findMatches(listOne, listTwo) {
   const matchesMap = makeMatchesMap(listTwo);
   return listOne.map((one) => [one, getScore(one, matchesMap)]);
+}
+
+export function sortMatches(matches, cutoff) {
+  return matches
+    .filter(([_name, [score, _possibleMatches]]) => score >= cutoff)
+    .sort(
+      (
+        [_name, [score, _possibleMatches]],
+        [_name2, [score2, _possibleMatches2]],
+      ) => score2 - score,
+    );
 }

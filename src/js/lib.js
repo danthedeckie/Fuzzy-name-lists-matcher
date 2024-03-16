@@ -70,7 +70,8 @@ function makeStemmed(value) {
     .replace("k", "c") // Kate/cath
     .replace("z", "s") // Elizabeth/Elisabeth
     .replace("tch", "ch") // watch / wach
-    .replace("th", "t") // esther / ester
+    // consonant-h -> just that consonant.
+    .replace(/([bcdfghjklmnpqrstvwxz])h/, "$1") // chat / cat, esther / ester, etc.
     .replace(/[rw]/, "b") // bill/will, rob/bob
     .replace("oh", "o") // john/jon
     .replace("mac", "mc") // Macfarlane/mcfarlane

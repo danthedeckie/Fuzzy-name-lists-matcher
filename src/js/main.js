@@ -8,6 +8,12 @@ const listTwoCountEl = document.getElementById("listTwo-count");
 
 const outputEl = document.getElementById("matchesOutput");
 
+// Configuration
+const cutoffValueEl = document.getElementById("cutoffValue");
+const possibleMatchSeparatorEl = document.getElementById(
+  "possibleMatchSeparator",
+);
+
 function scoreClass(value) {
   if (value > 98.5) {
     return "certain";
@@ -31,6 +37,12 @@ function makeMatchDisplay([name, probabilty]) {
 }
 
 buttonEl.addEventListener("click", () => {
+  const cutoff = parseFloat(cutoffValueEl.value);
+  if (Number.isNaN(cutoff)) {
+    alert("Invalid Cutoff value");
+    return;
+  }
+
   buttonEl.textContent = "Searching...";
   //buttonEl.disabled = true;
   buttonEl.style.cursor = "wait";
@@ -47,7 +59,7 @@ buttonEl.addEventListener("click", () => {
     // by score:
 
     const sorted = matches
-      .filter(([_name, [score, possibleMatches]]) => score > 3.5)
+      .filter(([_name, [score, possibleMatches]]) => score > cutoff)
       .sort(
         (
           [_name, [score, possibleMatches]],
@@ -57,13 +69,17 @@ buttonEl.addEventListener("click", () => {
 
     // Now display them as rows in the table:
 
+    const possibleMatchSeparatorValue = possibleMatchSeparatorEl.value;
+
     const output = sorted.map(
       ([name, [score, possibleMatches]]) =>
         `<tr class="${scoreClass(score)}">
         <td>${name}</td>
         <td><div class="matchoptions">${possibleMatches
           .map(makeMatchDisplay)
-          .join(' <span class="joiner" aria-label="or" role="separator">⊕</span> ')}</div></td>
+          .join(
+            ` <span class="joiner" aria-label="or" role="separator">${possibleMatchSeparatorValue}</span> `,
+          )}</div></td>
         <td class="score">${score.toFixed(2)}</td>
       </tr>`,
     );
@@ -91,4 +107,16 @@ listTwoEl.addEventListener("blur", () => {
   listTwoCountEl.innerHTML = `(${
     listTwoEl.value.split(/\r?\n/).filter((i) => i.length).length
   })`;
+});
+
+cutoffValueEl.addEventListener("blur", () => {
+  let value = parseFloat(cutoffValueEl.value);
+  if (Number.isNaN(value)) {
+    value = 3.5;
+  } else if (value < 0) {
+    value = 0.0;
+  } else if (value > 99.9) {
+    value = 99.9;
+  }
+  cutoffValueEl.value = value;
 });

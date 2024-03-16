@@ -167,3 +167,13 @@ span.joiner {
     color: #333333;
   }
 }
+
+.options {
+  text-align: center;
+  label {
+    margin: 0.5rem;
+  }
+  input {
+    margin: 0.5rem;
+  }
+}

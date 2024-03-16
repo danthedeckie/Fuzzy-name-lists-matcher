@@ -1,0 +1,7 @@
+{
+    "name": "Fuzzy List-of-Names Finder",
+    "short_name": "NameFinder",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "description": "A simple app for searching in one list of names to find fuzzy-matches from another list"
+}

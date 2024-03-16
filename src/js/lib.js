@@ -78,7 +78,9 @@ function makeStemmed(value) {
    * It's not perfect - but seems to do OK for now. It could certianly be improved with
    * many many more different common cases, and language specific things.
    *
-   * Possibly just going with Soundex/Metaphone might work as well? Or a combination.
+   * Possibly just going with Soundex/Metaphone might work as well? Or a combination?
+   *
+   * An improved version (possibly?) would be to do only the first syllable?
    *
    * */
   const cleaned = value
@@ -98,9 +100,10 @@ function makeStemmed(value) {
     .replace("mac", "mc") // Macfarlane/mcfarlane
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
-    .replace(/(\w)ander/, "$1") // Alexander/Alex
-    .replace(/(\w)rick/, "$1") // Patrick/Pat
-    .replace(/(\w)ard/, "$1") // Richard/Rich
+    .replace(/(\w)ander$/, "$1") // Alexander/Alex
+    .replace(/(\w)rick$/, "$1") // Patrick/Pat
+    .replace(/(\w)ard$/, "$1") // Richard/Rich
+    .replace(/(\w)ela$/, "$1") // Pamela/Pam
     // TODO - think about '-athon', '-tina', and other common suffixes???
     .replace(/(\w)ian$/, "$1") // Gillian / Gill
     .replace(/(\w)iel$/, "$1") // Daniel / Dan
@@ -125,21 +128,28 @@ function dedup(values) {
 function makeSubVariations(value) {
   const splitNames = value.split(" ").filter((i) => i.length);
 
-  // First the 'full names' at full value:
+  const nameStems = splitNames.map(makeStemmed).filter((m) => m.length > 1);
+
   const variations = [
+    // First the 'full names' at full value:
     [value, MATCHVAL.TOTAL],
-    [
-      splitNames
-        .map(makeStemmed)
-        .filter((m) => m.length > 1)
-        .join(" "),
-      MATCHVAL.TOTAL_STEM,
-    ],
+    // Same for all the combined stems:
+    [nameStems.join(" "), MATCHVAL.TOTAL_STEM],
     // Plus all the individual names (stemmed) at that value:
-    ...dedup(splitNames.map(makeStemmed).filter((m) => m.length > 1)).map(
-      (w) => [w, MATCHVAL.ONE_STEM],
-    ),
+    ...dedup(nameStems).map((w) => [w, MATCHVAL.ONE_STEM]),
   ];
+
+  // Now the truncated stems versions of above:
+  const trunctatedStems = nameStems
+    .filter((m) => m.length > 3)
+    .map((stem) => stem.substr(0, 3));
+
+  variations.push(
+    // Same for all the combined stems:
+    // [trunctatedStems.join(" "), MATCHVAL.TWO_STEMS_MATCH],
+    // Plus all the individual names (stemmed) at that value:
+    ...dedup(trunctatedStems).map((w) => [w, MATCHVAL.ONE_STEM]),
+  );
 
   // All combinations of names (& stemmed Names)
   const combinationNameVariations = [];

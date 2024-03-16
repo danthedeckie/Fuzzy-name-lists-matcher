@@ -87,21 +87,23 @@ function makeStemmed(value) {
     .replace("ph", "f") // philipe/filipe
     .replace("ge", "je") // jeff/geoff
     .replace("g", "j") // Gill/jill
+    .replace("ck", "c") // Kate/cath
     .replace("k", "c") // Kate/cath
     .replace("z", "s") // Elizabeth/Elisabeth
     .replace("tch", "ch") // watch / wach
     // consonant-h -> just that consonant.
     .replace(/([bcdfghjklmnpqrstvwxz])h/, "$1") // chat / cat, esther / ester, etc.
-    .replace(/[rw]/, "b") // bill/will, rob/bob
+    .replace(/[rwd]/, "b") // bill/will, rob/bob, rich/
     .replace("oh", "o") // john/jon
     .replace("mac", "mc") // Macfarlane/mcfarlane
     // common suffixes:
     .replace("tofer", "") // Christopher/chris
-    .replace("ander", "") // Alexander/Alex
+    .replace(/(\w)ander/, "$1") // Alexander/Alex
+    .replace(/(\w)rick/, "$1") // Patrick/Pat
+    .replace(/(\w)ard/, "$1") // Richard/Rich
     // TODO - think about '-athon', '-tina', and other common suffixes???
-    .replace("ian", "") // Gillian / Gill
-    .replace(/(\w)ian/, "$1") // Gillian / Gill
-    .replace(/(\w)iel/, "$1") // Daniel / Dan
+    .replace(/(\w)ian$/, "$1") // Gillian / Gill
+    .replace(/(\w)iel$/, "$1") // Daniel / Dan
     .replace(/[eiy]+$/, "") // Bobby / bob, Danny/dan
     // And finally replace all vowels w generic _
     .replace(/[aeiouy]+/g, "_");

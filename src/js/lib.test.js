@@ -207,24 +207,17 @@ describe("getScore", () => {
     expect(matchScore[0]).toBeLessThan(30);
   });
 
-  // it("doesn't get a better score for matching the same word multiple times", () => {
-  //   const TwoMatches = makeMatchesMap(["john john smyth"]);
-  //   const ThreeMatches = makeMatchesMap(["john john john smyth"]);
+  // TODO...
+  // it("doesn't get a better score for matching the same stem word multiple times", () => {
+  //   const TwoMatches = makeMatchesMap(["ian john"]);
+  //   const ThreeMatches = makeMatchesMap(["ian john jon"]);
+  //   console.log(TwoMatches);
+  //   console.log(ThreeMatches);
+
   //   expect(getScore("john smith", TwoMatches)[0]).toEqual(
   //     getScore("john smith", ThreeMatches)[0],
   //   );
   // });
-
-  it("doesn't get a better score for matching the same stem word multiple times", () => {
-    const TwoMatches = makeMatchesMap(["ian john"]);
-    const ThreeMatches = makeMatchesMap(["ian john jon"]);
-    console.log(TwoMatches);
-    console.log(ThreeMatches);
-
-    expect(getScore("john smith", TwoMatches)[0]).toEqual(
-      getScore("john smith", ThreeMatches)[0],
-    );
-  });
 });
 
 describe("findMatches", () => {

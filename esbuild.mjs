@@ -8,7 +8,7 @@ const pwd = dirname(fileURLToPath(import.meta.url));
 const [command, ...args] = process.argv.slice(2);
 
 const config = {
-  entryPoints: ["src/js/main.js", "src/css/main.css"],
+  entryPoints: ["src/js/main.js", "src/css/main.css", "src/js/debug.js"],
   outdir: "dist",
   // Stuff you shouldn't need to edit:
   target: ["chrome58", "firefox57", "safari11", "edge19"],

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <title>Fuzzy list-of-names matcher - Debugging tool</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <h1>Name finder - debugging</h1>
+    <div class="intro">
+      <p>
+        The tools on this page are to help visualise &amp; interactively
+        experiment with the underlying functions used in the main
+        <a href="/">Fuzzy list-of-names matcher</a>.<br />
+        Ideally use the unit tests to drive development for real feature
+        building, but sometimes interactive playing with feature changes is
+        quicker.
+      </p>
+    </div>
+    <div class="entry">
+      <label>
+        normalise
+        <input type="text" id="normaliseInput" /><br />
+        <span id="normaliseOutput"></span>
+      </label>
+      <label>
+        makeStemmed
+        <input type="text" id="makeStemmedInput" /><br />
+        <span id="makeStemmedOutput"></span>
+      </label>
+      <label>
+        makeVariations
+        <input type="text" id="makeVariationsInput" /><br />
+        <span id="makeVariationsOutput"></span>
+      </label>
+    </div>
+    <div class="entry">
+      <label>
+        getScore
+        <input type="text" id="getScoreInput" /><br />
+      </label>
+      <label>
+        getScore search list:
+        <textarea id="getScoreSearchInput"></textarea>
+      </label>
+      <span id="getScoreOutput"></span>
+    </div>
+    <script src="js/debug.js"></script>
+    <script>
+      new EventSource("/esbuild").addEventListener("change", () =>
+        location.reload()
+      );
+    </script>
+  </body>
+</html>

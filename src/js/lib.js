@@ -70,7 +70,7 @@ export function makeFirstInitialAndLastName(value) {
     .replace(/ . /, " ");
 }
 
-function makeStemmed(value) {
+export function makeStemmed(value) {
   /* This function takes a name and converts it to a simplified "stem"
    * form, eg Thomas -> t_m, Maria -> m_r_, Philip -> f_l_p
    * which catches a lot of spelling variations.

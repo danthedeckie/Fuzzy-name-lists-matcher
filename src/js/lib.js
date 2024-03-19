@@ -88,18 +88,18 @@ export function makeStemmed(value) {
     .replace(/(\w)(\1)/g, "$1")
     .replace("ph", "f") // philipe/filipe
     .replace("ge", "je") // jeff/geoff
-    .replace("g", "j") // Gill/jill
-    .replace("ck", "c") // Kate/cath
+    .replace(/^g/, "j") // Gill/jill
+    .replace("ck", "c") // ??
     .replace("k", "c") // Kate/cath
     .replace("z", "s") // Elizabeth/Elisabeth
     .replace("tch", "ch") // watch / wach
     // consonant-h -> just that consonant.
     .replace(/([bcdfghjklmnpqrstvwxz])h/, "$1") // chat / cat, esther / ester, etc.
-    .replace(/[rwd]/, "b") // bill/will, rob/bob, rich/
+    .replace(/^[rwd]/, "b") // bill/will, rob/bob, rich/
     .replace("oh", "o") // john/jon
-    .replace("mac", "mc") // Macfarlane/mcfarlane
+    .replace(/^mac/, "mc") // Macfarlane/mcfarlane
     // common suffixes:
-    .replace("tofer", "") // Christopher/chris
+    .replace(/(\w)tofer$/, "$1") // Christopher/chris
     .replace(/(\w)ander$/, "$1") // Alexander/Alex
     .replace(/(\w)rick$/, "$1") // Patrick/Pat
     .replace(/(\w)ard$/, "$1") // Richard/Rich
@@ -118,9 +118,19 @@ export function makeStemmed(value) {
   return cleaned;
 }
 
-function dedup(values) {
+export function dedup(values) {
   /* De-duplicate values in a list */
-  return [...new Set(values).values()];
+  const output = [];
+  for (const item of values) {
+    if (!output.includes(item)) {
+      output.push(item);
+    }
+  }
+  return output;
+  // This also could be done with:
+  // return [...new Set(values).values()];
+  // but that seems to be slower for this case - because we're deduplicating thousands of
+  // tiny lists, not one huge one, I guess.
 }
 
 /* And combine them all: */
@@ -141,12 +151,17 @@ function makeSubVariations(value) {
 
   // Now the truncated stems versions of above:
   const trunctatedStems = nameStems
-    .filter((m) => m.length > 3)
+    // .filter((m) => m.length > 3)
     .map((stem) => stem.substr(0, 3));
 
+  const truncatedAndJoined = trunctatedStems.join(" ");
+
+  // Same for all the combined stems:
+  if (truncatedAndJoined !== nameStems.join(" ")) {
+    variations.push([trunctatedStems.join(" "), MATCHVAL.TWO_STEMS_MATCH]);
+  }
+
   variations.push(
-    // Same for all the combined stems:
-    // [trunctatedStems.join(" "), MATCHVAL.TWO_STEMS_MATCH],
     // Plus all the individual names (stemmed) at that value:
     ...dedup(trunctatedStems).map((w) => [w, MATCHVAL.ONE_STEM]),
   );

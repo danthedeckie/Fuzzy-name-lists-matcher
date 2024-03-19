@@ -1,13 +1,28 @@
 import {
   findMatches,
   normalise,
+  dedup,
   makeMatchesMap,
   getScore,
   makeVariations,
   MATCHVAL,
   makeFirstInitials,
   makeFirstInitialAndLastName,
+  makeStemmed,
 } from "./lib";
+
+describe("dedup", () => {
+  it("deduplicates individual strings", () => {
+    expect(dedup(["a", "b", "c", "a", "x", "y", "z", "z", "z", "z"])).toEqual([
+      "a",
+      "b",
+      "c",
+      "x",
+      "y",
+      "z",
+    ]);
+  });
+});
 
 describe("makeFirstInitials", () => {
   it("does it with one first name", () => {
@@ -49,6 +64,15 @@ describe("normalise", () => {
   });
   it("removes tabs", () => {
     expect(normalise("\ttest     \t  person \t ")).toEqual("test person");
+  });
+});
+
+describe("makeStemmed", () => {
+  it("makes Bill and Will match", () => {
+    expect(makeStemmed("will")).toEqual(makeStemmed("bill"));
+  });
+  it("makes Elizabeth and Elisabeth match", () => {
+    expect(makeStemmed("elizabeth")).toEqual(makeStemmed("elisabeth"));
   });
 });
 

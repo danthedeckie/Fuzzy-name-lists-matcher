@@ -8,7 +8,14 @@ const pwd = dirname(fileURLToPath(import.meta.url));
 const [command, ...args] = process.argv.slice(2);
 
 const config = {
-  entryPoints: ["src/js/main.js", "src/css/main.css", "src/js/debug.js"],
+  entryPoints: [
+    "src/js/main.js",
+    "src/css/main.css",
+    "src/js/debug.js",
+    "src/index.html",
+    "src/debug.html",
+    "src/manifest.json",
+  ],
   outdir: "dist",
   // Stuff you shouldn't need to edit:
   target: ["chrome58", "firefox57", "safari11", "edge19"],
@@ -16,6 +23,7 @@ const config = {
   sourcemap: true,
   outExtension: { ".js": ".js" },
   logLevel: "info",
+  loader: { ".html": "copy", ".json": "copy" },
 };
 
 switch (command) {

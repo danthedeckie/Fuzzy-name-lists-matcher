@@ -18,3 +18,6 @@ format-check:
 
 lint:
 	npm run lint src/
+
+clean:
+	rm -rf dist/*

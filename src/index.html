@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="manifest" href="manifest.json" />
+    <title>Fuzzy list-of-names matcher</title>
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <h1>Name finder</h1>
+    <div class="intro">
+      <p>
+        Select the columns of data from your spreadsheet.<br />
+        (If you have 2 columns for first &amp; last names, select both columns
+        together)<br />
+        Press "Copy", and paste into the boxes here.<br />
+      </p>
+    </div>
+    <div class="entry">
+      <label>
+        Our names:
+        <textarea id="listOne"></textarea><br />
+        <span id="listOne-count"></span>
+      </label>
+      <label>
+        Where we want to find them:
+        <textarea id="listTwo"></textarea><br />
+        <span id="listTwo-count"></span>
+      </label>
+    </div>
+    <div class="buttons">
+      <button type="button" id="findMatchesButton" aria-live="polite">
+        Search
+      </button>
+      <br />
+    </div>
+    <table>
+      <thead>
+        <td>Original Name</td>
+        <td>Possible Matches</td>
+        <td>Score</td>
+      </thead>
+      <tbody id="matchesOutput" aria-live="polite">
+        <tr class="certain">
+          <td>Example almost certain match</td>
+          <td>...</td>
+          <td>100</td>
+        </tr>
+        <tr class="possible">
+          <td>Example possible match</td>
+          <td>
+            Possible match
+            <span class="joiner" aria-label="or" role="separator">⊕</span>
+            Similarly possible match
+            <span class="joiner" aria-label="or" role="separator">⊕</span>
+            <span class="less-likely">Less Likely match</span>
+          </td>
+          <td>33</td>
+        </tr>
+        <tr>
+          <td>Example probable miss</td>
+          <td>...</td>
+          <td>2.5</td>
+        </tr>
+        <tr class="nothing">
+          <td>Example almost certain miss</td>
+          <td>...</td>
+          <td>0</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="options">
+      <h2>Options</h2>
+      <label>
+        Cut-off below:
+        <input
+          id="cutoffValue"
+          value="3.5"
+          type="number"
+          max="99"
+          min="0"
+          placeholder="between 0 and 99"
+          step=".1"
+        /> </label
+      ><br />
+      <label>
+        Possible match separator:
+        <input id="possibleMatchSeparator" value="⊕" autocomplete="off" />
+      </label>
+    </div>
+    <script src="js/main.js"></script>
+    <script>
+      new EventSource("/esbuild").addEventListener("change", () =>
+        location.reload()
+      );
+    </script>
+  </body>
+</html>

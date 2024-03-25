@@ -9,6 +9,7 @@ import {
   makeFirstInitials,
   makeFirstInitialAndLastName,
   makeStemmed,
+  sortMatches,
 } from "./lib";
 
 describe("dedup", () => {
@@ -284,5 +285,31 @@ describe("findMatches", () => {
       phrase,
       expectedScore,
     ]);
+  });
+});
+
+describe("sortMatches", () => {
+  const scores = [
+    ["Hello Tests", [42.0, ["hello"]]],
+    ["Hello World", [90.0, ["hello", "world"]]],
+    ["No match", [0.0, []]],
+    ["H W", [5.0, ["hello", "world"]]],
+  ];
+
+  test("sorts by highest score", () => {
+    const expected = [
+      ["Hello World", [90.0, ["hello", "world"]]],
+      ["Hello Tests", [42.0, ["hello"]]],
+      ["H W", [5.0, ["hello", "world"]]],
+      ["No match", [0.0, []]],
+    ];
+    expect(sortMatches(scores, 0)).toEqual(expected);
+  });
+  test("cuts off below threshold", () => {
+    const expected = [
+      ["Hello World", [90.0, ["hello", "world"]]],
+      ["Hello Tests", [42.0, ["hello"]]],
+    ];
+    expect(sortMatches(scores, 20.0)).toEqual(expected);
   });
 });

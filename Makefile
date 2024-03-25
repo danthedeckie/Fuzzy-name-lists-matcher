@@ -5,7 +5,7 @@ serve:
 	node esbuild.mjs serve
 
 test:
-	node --experimental-vm-modules node_modules/jest/bin/jest.js
+	node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage
 
 autotest:
 	node --experimental-vm-modules node_modules/jest/bin/jest.js --watchAll

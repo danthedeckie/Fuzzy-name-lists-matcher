@@ -1,5 +1,5 @@
 [![Repository License](https://img.shields.io/badge/license-GPL%20v3.0-brightgreen.svg)](COPYING)
-![Build Status](https://github.com/github/docs/actions/workflows/ci.yml/badge.svg)
+![Build Status](https://github.com/danthedeckie/Fuzzy-name-lists-matcher/actions/workflows/ci.yml/badge.svg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # Fuzzy list of names matcher

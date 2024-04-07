@@ -44,6 +44,7 @@ too much noise.
 ## Authors
 
 fuzzy list of names matcher was created by [Daniel Fairhead](https://github.com/danthedeckie)
+sponsored by [The Churchhill Fellowship](https://www.churchillfellowship.org/)
 and welcomes contributions.
 
 ## Licence

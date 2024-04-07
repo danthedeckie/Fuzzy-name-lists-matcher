@@ -106,15 +106,13 @@ describe("makeVariations", () => {
     expect(variations).toContainEqual(["c_sm_s", MATCHVAL.ONE_STEM]);
   });
   it("copes with multiple bracket versions", () => {
-    const variations = makeVariations(
-      "(Julia Elizabeth) WALPORT (Dr Julia Neild)",
-    );
+    const variations = makeVariations("(Julie Armada) Frost (Dr julie test)");
     const words = variations.map(([a, b]) => a);
     expect(words).not.toContain("");
-    expect(words).toContain("julia");
-    expect(words).toContain("elizabeth");
-    expect(words).toContain("walport");
-    expect(words).toContain("neild");
+    expect(words).toContain("julie");
+    expect(words).toContain("armada");
+    expect(words).toContain("frost");
+    expect(words).toContain("test");
   });
   it("makes a non-extra letters version", () => {
     const variations = makeVariations("hello g world");
